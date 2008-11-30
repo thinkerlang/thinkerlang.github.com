@@ -1,0 +1,18 @@
+MacBook, Mac OSX Leopard, 2Ghz Core2 Duo
+
+4> test:test().
+{{func,1,259.593},{proc,1,1406.966}}
+5> test:test().
+{{func,1,258.128},{proc,1,1403.7}}
+6> test:test().
+{{func,1,256.944},{proc,1,1403.855}}
+7> A = (259.593 + 258.128 + 256.944).
+774.665
+8> B = 1406.966 + 1403.7 + 1403.855. 
+4214.521000000001
+9> 
+9> B / A.
+5.440443288389176
+
+Function invocation looks to be 5 times
+as fast as message passing!
