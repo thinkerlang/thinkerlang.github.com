@@ -695,3 +695,5 @@ Here's the mother of all tests where we pickle a bunch of nested records with mi
 The last thing to note is that the pickler combinator approach is definitely less efficient than processing binaries directly. Still, it is suitable for lots of applications where programming productivity is more important than ultimate efficiency.
 
 Full pickler combinator source code is available "here":http://wagerlabs.com/erlang/pickle.erl.
+
+"Discuss this article":http://groups.google.com/group/thinkerlang/browse_thread/thread/e7ba70d6787d81c

@@ -61,3 +61,5 @@ Grabbing the version of the BEAM file holding the code for a given module is don
 I haven't documented why I'm not using a module name or a file name in the boot server scenario but I must have found them not to work. I had to resort to fetching the module BEAM file from the boot server and inspecting that. Fortunately, traffic between EC2 instances is free and fast and the same applies to your LAN.
 
 To find out if a module is modified I grab the list of loaded modules with code:all_loaded/0 and inspect each module with code:is_loaded/1. I skip preloaded modules (see documentation for code:is_loaded) and use the path returned otherwise to instruct erl_prim_loader:get_file/1 to fetch the BEAM file. I then pass the file contents to beam_lib:version/1 and I have my disk version. After that it's a simple matter of comparing the two versions and reloading the module if they differ.
+
+"Discuss this article":http://groups.google.com/group/thinkerlang/browse_thread/thread/323e806420a60922
