@@ -1,0 +1,78 @@
+---
+layout: post
+title: Setting up Erlang on Amazon EC2
+---
+
+h1. {{ page.title }}
+
+p(meta). 12 Oct 2007 - Tenerife
+
+This article describes a project that I recently completed for a startup company. The code is proprietary and cannot be published but the company has graciously allowed me to write about my experience.
+
+h6. Why Erlang and Amazon EC2?
+
+There's no need to introduce the Amazon Elastic Computing Cloud (EC2) since everyone knows about it by now. In essence, EC2 allows you to rent computing power by the hour. That hour is just $0.10 which works out to about $70 per month. The virtual server that Amazon provides is called an instance. The important bit is that you are completely in control of the operating system that the instance runs and the software installed on it.
+
+Amazon lets you run scores of instances at any given time. Major benefits are realized when EC2 instances work as a cluster, though. Think of GoogleBot, a page crawler that indexes your site's content. Such a crawler would surely benefit from being run on as many machines as possible, all indexing different pages and working in parallel. Once the crawler is finished, you can shut the machines down until next time.
+
+Amazon does not provide tools to cluster your instances or replicate data among them. This is a task that Erlang copes with extremely well so Amazon EC2 and Erlang are a match made in haven!
+
+h6. How to set up Erlang on Amazon EC2
+
+How do you start with Erlang and EC2? You need to build a Linux image that runs Erlang upon startup and automatically starts a new Erlang node. This node should then contact an existing Erlang node to join your Erlang cluster.
+
+CEAN is a great way to set up the necessary components of Erlang on your new instance. Set up CEAN and have it install just the Erlang applications that you need. Create a script that will run Erlang when Linux starts. Make sure to adjust $HOME in this script and set $PROGNAME to start.sh in cean/start.sh. Use cean:install/1 to pull in the inets and sasl packages. You will likely need the compiler package as well.
+
+The EC2 API lets you pass arguments to your newly started instance and these arguments can be retrieved by your Erlang code. One of the arguments you absolutely must pass is the name of an existing instance that is already part of your Erlang cluster. By connecting to Erlang running on the existing instance your new node will automatically become aware of the rest of the cluster.
+
+h6. Upgrading your Erlang code
+
+The software available to your instance is normally part of your instance image. It's quite cumbersome to rebuild an image every time you deploy a software update, though. It's much better to push software updates to your instances whenever an update is available. Note that these updates need to be pushed to every instance in your Erlang cluster and reloaded every time an instance restarts. Fortunately, Erlang makes all this easy.
+
+The boot server facility is probably one of the least documented and appreciated pieces of the Erlang infrastructure but one that comes in most handy here. A boot server enables Erlang nodes to fetch their configuration files and code from a central location, over the network. This neatly sidesteps the issue of pushing upgrades to your Erlang cluster. All you need to do is restart your instances one by one and have them fetch new software.
+
+Note that you don't need to physically restart the EC2 instances themselves. All you need to do is tell our Erlang nodes to reboot without exiting the VM. This is done using init:restart/0.
+
+h6. The boot server
+
+The Erlang boot server lives in the erlbootserver module and keeps a list of slave hosts authorized to connect to it. You can use man erlbootserver to read up on the boot server API.
+
+The boot server will not have any hosts authorized to connect to it upon startup. A new EC2 instance that you are starting up needs to be added to the boot server slave list BEFORE you attempt to start an new Erlang node. This is easily accomplished by starting a "controller" node that will issue an RPC call to the boot server and add its own IP address to the boot server's slave list.
+
+Once the controller node adds the internal Amazon instance address to the boot server authorized slave list, it can start the worker node and safely exit. Now that the boot server knows about the new slave it will allow connection and the worker node will successfully fetch its software from the boot server.
+
+The boot server and all the slave nodes must share the same Erlang cookie. The cookie is stored in ~/.erlang.cookie. All nodes must also share the same OTP version.
+
+So long as all the nodes are part of the same EC2 security group we should be reasonably secure that no node outside of our group will be able to make use of our boot server. This security is also aided by the requirement that all Erlang nodes in the cluster must use the same cookie to talk to each other. It's convenient to assign one of the existing instances as a boot server since it will then be within the EC2 security group.
+
+h6. Setting up
+
+I use a script like this to start slave nodes. The path specified is on the boot server.
+
+<pre><code>
+#!/bin/sh
+
+COOKIE=RRFJBVGLSOUPFLWVEYJP
+BOOT=/Users/joelr/work/erlang/sync/ebin/diskless
+HOST=192.168.1.33
+ID=diskless
+
+erl -name $ID -boot $BOOT -setcookie $COOKIE -id $ID -loader inet -hosts $HOST -mode embedded ${1+"$@"}
+</code></pre>
+
+You will also need to create a boot file which must be created with full paths inside (local option to systools:make_script/2).
+
+To build a boot file I use these two lines of Erlang:
+
+<pre><code>
+code:add_path("./ebin"). 
+systools:make_script("diskless", [local, {outdir, "./ebin"}]).
+</code></pre>
+
+script files is made from rel and app files. boot files are made from script files.
+
+Note that diskless is the same boot file name that is used in the shell script above. I'm assuming that it lives in ./ebin and so I add it to the code path for make_script to find it.
+
+If everything is done correctly your new EC2 instances will now fetch their code from the boot sever upon startup and whenever you restart Erlang nodes running on them with init:restart/0.
+
+I may not always be convenient to pull updates from the boot server. I will describe a push facility that I implemented in another post.

@@ -1,0 +1,63 @@
+---
+layout: post
+title: Upgrading your Erlang cluster on Amazon EC2
+---
+
+h1. {{ page.title }}
+
+p(meta). 13 Oct 2007 - Tenerife
+
+This article describes how to upgrade an Erlang cluster in one fell swoop once you have deployed it on Amazon EC2.
+
+h6. Why not the Erlang/OTP upgrade procedure
+
+The standard and sanctioned way of deploying and upgrading Erlang applications is described in chapters 10-12 of the OTP Design Principles. Calling the upgrade procedure complex is an understatement. 
+
+Bowing to the OTP application packaging procedure, I wanted to have a way of upgrading applications with a "push of a button". More precisely, I wanted to be able to type make:all() to rebuild my application and then type sync:all() to push updated modules to all nodes in my cluster. These nodes were previously set up as "diskless" Amazon EC2 nodes that fetch their code from the boot server since I didn't want to reinvent the application packaging wheel.
+
+h6. The sync application
+
+The principal application deployed in the cluster is the "sync" app. This is a gen_server set up according to chapter 2 of the OTP Design Principles. The gen_server handles requests to restart the Erlang node without shutting down and set environment variables, as well as requests upgrade the code by application or by process. Each sync gen_server joins the 'SYNC' distributed named process group and this is what enables upgrade of the whole cluster in one fell swoop. 
+
+The sync server will invoke init:restart/0 to restart the node without shutting down upon receiving the RESTART request. This is incredibly handy since the restart sequence takes the contents of the Erlang VM to the trash can and then repeats the same steps taken by the Erlang VM when it is started from the command line. Which is to say that the VM loads the boot file from the boot server, parses the boot file, downloads the applications and runs them. If we have upgraded the code on the boot server then the Erlang VM will run new code after a restart. 
+
+h6. Upgrading by application or by process
+
+The above procedure is quite intrusive since all apps running in the Erlang VM are killed. Any Erlang node will normally be running a number of apps and you may want to upgrade just one or two of them. This is where the "upgrade by application" procedure comes in. 
+
+application:get_application/1 will give you the name of the application that a module belongs to. I build a unique list of applications that my changed modules belong to and then stop each application with application:stop/1, re-load changed modules and start the application with application:start/1. 
+
+The "upgrade process by process" procedure first grabs a list of all processes running in the same node as the sync gen_server. It does this by calling processes(). I check whether each process is running the code in one of the modified modules using erlang:check_process_code/2. Next, I suspend affected processes with erlang:suspend_process/1, re-load changed modules with erlang:resume_process/1 and I'm done.
+
+h6. Reloading modules for fun and profit
+
+I'm still not absolutely sure if I got reloading of changed modules right but it looks like this:
+
+<pre><code>
+    load_modules([]) ->
+        ok;
+
+    load_modules([Mod|T]) ->
+        code:purge(Mod),
+        code:soft_purge(Mod),
+        {module, Mod} =  code:load_file(Mod),
+        load_modules(T).
+</code></pre>
+
+The need to call code:soft_purge/1 after code:purge/1 was determined empirically.
+
+Everything I have described thus far is small bits of code.  The biggest chunk of code in the sync server figures out what modules were modified. 
+
+h6. What to reload: Inspecting module versions
+
+Remember my original intent to run make:all/0 followed by sync:all/0 to upgrade all nodes in the cluster at the same time? It's only possible because 1) it's possible to grab the module version from a module loaded into memory, 2) it's possible to grab the same from a module on disk and, crucially, modules are not reloaded when make:all/0 is run.
+
+The module version defaults to the MD5 checksum of the module if no -vsn(Vsn) attribute is specified. For the life of me I can't remember where Module:module_info() is documented but this is what you use to grab the attributes of the module. It's a property list so you can use proplists:get_value/2 to grab the vsn property and thus the module version.
+
+To take advantage of local processing power, the API initiating the upgrade request does no work apart from inspecting the SYNC distributed named process group and telling each sync gen_server in the group to initiate the upgrade procedure. This means that each module loaded into the Erlang node hosting the sync server needs to be checked for changes.
+
+Grabbing the version of the BEAM file holding the code for a given module is done using  beam_lib:version/1.  This is complicated by the fact that all of the Erlang EC2 nodes in the cluster download their code from the boot server.  Normally, beam_lib:version/1 takes either a module name, a file name or a binary. 
+
+I haven't documented why I'm not using a module name or a file name in the boot server scenario but I must have found them not to work. I had to resort to fetching the module BEAM file from the boot server and inspecting that. Fortunately, traffic between EC2 instances is free and fast and the same applies to your LAN.
+
+To find out if a module is modified I grab the list of loaded modules with code:all_loaded/0 and inspect each module with code:is_loaded/1. I skip preloaded modules (see documentation for code:is_loaded) and use the path returned otherwise to instruct erl_prim_loader:get_file/1 to fetch the BEAM file. I then pass the file contents to beam_lib:version/1 and I have my disk version. After that it's a simple matter of comparing the two versions and reloading the module if they differ.
