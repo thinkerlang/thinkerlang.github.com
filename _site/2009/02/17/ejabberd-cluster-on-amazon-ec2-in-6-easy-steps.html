@@ -26,20 +26,22 @@
 <h3>How to set up an ejabberd cluster on Amazon EC2 in 6 easy steps</h3>
 <p class="meta">17 Feb 2009 &#8211; Tenerife</p>
 <p>1) Edit /etc/init.d/ejabberd</p>
-<p>node=`hostname -f`</p>
-<p>`hostname -s` does not work here.</p>
+<pre class="terminal"><code>node=`hostname -f`</code></pre>
+
+<pre class="terminal"><code>`hostname -s`</code></pre>does not work here.
 <p>2) Edit /etc/init.d/ejabberd</p>
-<p>Use &#8216;-name ejabberd@$node&#8217; instead of &#8216;-sname ejabberd&#8217; everywhere. This applies to &#8216;-sname ejabberdctl&#8217; too.</p>
+<p>Use <pre class="terminal"><code>-name ejabberd@$node</code></pre> instead of <pre class="terminal"><code>
+-sname ejabberd</code></pre> everywhere. This applies to <pre class="terminal"><code>-sname ejabberdctl</code></pre> too.</p>
 <p>3) Edit /etc/init.d/ejabberd add mnesia_extra_db_nodes</p>
 <p>See the start() function, find the line that says</p>
-<p>-detached&quot;</p>
+<pre class="terminal"><code>-detached"</code></pre>
 <p>and add the following right above</p>
-<p>-mnesia extra_db_nodes \&#8220;[&#8216;<hostname -f of a running node>&#8217;]\&#8221; \</p>
+<pre class="terminal"><code>-mnesia extra_db_nodes \"[' ... hostname -f of a running node ... ']\" \</code></pre>
 <p>4) Remove the Mnesia db tables</p>
-<p>cd /var/lib/ejabberd/spool &amp;&amp; rm -f *</p>
+<pre class="terminal"><code>cd /var/lib/ejabberd/spool &amp;&amp; rm -f *</code></pre>
 <p>5) Edit /etc/ejabberd/ejabberdctl.cfg</p>
 <p>Make sure you have this at the very end</p>
-<p>ERLANG_NODE=ejabberd@`hostname -f`</p>
+<pre class="terminal"><code>ERLANG_NODE=ejabberd@`hostname -f`</code></pre>
 <p>6) Make sure your .erlang.cookie files are the same on all nodes</p>
 <p>This will work with MySQL. Enjoy!</p>
 </div>

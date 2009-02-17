@@ -9,33 +9,34 @@ p(meta). 17 Feb 2009 - Tenerife
 
 1) Edit /etc/init.d/ejabberd
 
-node=`hostname -f`
+<pre class="terminal"><code>node=`hostname -f`</code></pre>
 
-`hostname -s` does not work here.
+<pre class="terminal"><code>`hostname -s`</code></pre> does not work here.
 
 2) Edit /etc/init.d/ejabberd
 
-Use '-name ejabberd@$node' instead of '-sname ejabberd' everywhere. This applies to '-sname ejabberdctl' too.
+Use <pre class="terminal"><code>-name ejabberd@$node</code></pre> instead of <pre class="terminal"><code>
+-sname ejabberd</code></pre> everywhere. This applies to <pre class="terminal"><code>-sname ejabberdctl</code></pre> too.
 
 3) Edit /etc/init.d/ejabberd add mnesia_extra_db_nodes
 
 See the start() function, find the line that says
 
--detached"
+<pre class="terminal"><code>-detached"</code></pre>
 
 and add the following right above
 
--mnesia extra_db_nodes \"['<hostname -f of a running node>']\" \
+<pre class="terminal"><code>-mnesia extra_db_nodes \"[' ... hostname -f of a running node ... ']\" \</code></pre>
 
 4) Remove the Mnesia db tables
 
-cd /var/lib/ejabberd/spool && rm -f *
+<pre class="terminal"><code>cd /var/lib/ejabberd/spool && rm -f *</code></pre>
 
 5) Edit /etc/ejabberd/ejabberdctl.cfg
 
 Make sure you have this at the very end
 
-ERLANG_NODE=ejabberd@`hostname -f`
+<pre class="terminal"><code>ERLANG_NODE=ejabberd@`hostname -f`</code></pre>
 
 6) Make sure your .erlang.cookie files are the same on all nodes
 

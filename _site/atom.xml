@@ -4,7 +4,7 @@
  <title>The Erlang Journal</title>
  <link href="http://thinkerlang.com/atom.xml" rel="self"/>
  <link href="http://thinkerlang.com/"/>
- <updated>2009-02-17T21:17:50+00:00</updated>
+ <updated>2009-02-17T21:22:22+00:00</updated>
  <id>http://thinkerlang.com/</id>
  <author>
    <name>Joel Reymont</name>
@@ -20,20 +20,22 @@
    <content type="html">&lt;h3&gt;How to set up an ejabberd cluster on Amazon EC2 in 6 easy steps&lt;/h3&gt;
 &lt;p class="meta"&gt;17 Feb 2009 &#8211; Tenerife&lt;/p&gt;
 &lt;p&gt;1) Edit /etc/init.d/ejabberd&lt;/p&gt;
-&lt;p&gt;node=`hostname -f`&lt;/p&gt;
-&lt;p&gt;`hostname -s` does not work here.&lt;/p&gt;
+&lt;pre class="terminal"&gt;&lt;code&gt;node=`hostname -f`&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre class="terminal"&gt;&lt;code&gt;`hostname -s`&lt;/code&gt;&lt;/pre&gt;does not work here.
 &lt;p&gt;2) Edit /etc/init.d/ejabberd&lt;/p&gt;
-&lt;p&gt;Use &#8216;-name ejabberd@$node&#8217; instead of &#8216;-sname ejabberd&#8217; everywhere. This applies to &#8216;-sname ejabberdctl&#8217; too.&lt;/p&gt;
+&lt;p&gt;Use &lt;pre class="terminal"&gt;&lt;code&gt;-name ejabberd@$node&lt;/code&gt;&lt;/pre&gt; instead of &lt;pre class="terminal"&gt;&lt;code&gt;
+-sname ejabberd&lt;/code&gt;&lt;/pre&gt; everywhere. This applies to &lt;pre class="terminal"&gt;&lt;code&gt;-sname ejabberdctl&lt;/code&gt;&lt;/pre&gt; too.&lt;/p&gt;
 &lt;p&gt;3) Edit /etc/init.d/ejabberd add mnesia_extra_db_nodes&lt;/p&gt;
 &lt;p&gt;See the start() function, find the line that says&lt;/p&gt;
-&lt;p&gt;-detached&quot;&lt;/p&gt;
+&lt;pre class="terminal"&gt;&lt;code&gt;-detached"&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;and add the following right above&lt;/p&gt;
-&lt;p&gt;-mnesia extra_db_nodes \&#8220;[&#8216;&lt;hostname -f of a running node&gt;&#8217;]\&#8221; \&lt;/p&gt;
+&lt;pre class="terminal"&gt;&lt;code&gt;-mnesia extra_db_nodes \"[' ... hostname -f of a running node ... ']\" \&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;4) Remove the Mnesia db tables&lt;/p&gt;
-&lt;p&gt;cd /var/lib/ejabberd/spool &amp;&amp; rm -f *&lt;/p&gt;
+&lt;pre class="terminal"&gt;&lt;code&gt;cd /var/lib/ejabberd/spool &amp;&amp; rm -f *&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;5) Edit /etc/ejabberd/ejabberdctl.cfg&lt;/p&gt;
 &lt;p&gt;Make sure you have this at the very end&lt;/p&gt;
-&lt;p&gt;ERLANG_NODE=ejabberd@`hostname -f`&lt;/p&gt;
+&lt;pre class="terminal"&gt;&lt;code&gt;ERLANG_NODE=ejabberd@`hostname -f`&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;6) Make sure your .erlang.cookie files are the same on all nodes&lt;/p&gt;
 &lt;p&gt;This will work with MySQL. Enjoy!&lt;/p&gt;</content>
  </entry>
