@@ -67,4 +67,6 @@ The array module uses an efficient tree-like internal representation:
 
 It's far more efficient to allocate small tuples on every set and this is why the array module wins hands down. 
 
-Use the code below to replicate my results on your hardware.
+Use "this code":1 to replicate my results on your hardware.
+
+[1]http://github.com/thinkerlang/thinkerlang.github.com/blob/13006a19c1c6e35146deddd688c03cb25079b06b/code/0808/death_match/arr.erl

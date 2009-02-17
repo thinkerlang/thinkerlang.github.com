@@ -4,7 +4,7 @@
  <title>The Erlang Journal</title>
  <link href="http://thinkerlang.com/atom.xml" rel="self"/>
  <link href="http://thinkerlang.com/"/>
- <updated>2009-02-17T21:13:32+00:00</updated>
+ <updated>2009-02-17T21:17:50+00:00</updated>
  <id>http://thinkerlang.com/</id>
  <author>
    <name>Joel Reymont</name>
@@ -46,7 +46,7 @@
    <content type="html">&lt;h3&gt;Optimizing Erlang &#8211; A death match of arrays and tuples&lt;/h3&gt;
 &lt;p class="meta"&gt;25 August 2008 &#8211; Tenerife&lt;/p&gt;
 &lt;p&gt;This is the first in my series of posts on optimizing Erlang. I plan to tackle optimizing Mnesia, profiling and scalability.&lt;/p&gt;
-&lt;p&gt;&lt;a href="http://groups.google.com/group/erlang-questions/browse_thread/thread/d171d2c4e997c29d"&gt;You need to use arrays of up to 10,000 elements.&lt;/a&gt; Erlang offers you tuples as well as fixed-size and extensible pseudo-arrays. What is the fastest option?&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://github.com/thinkerlang/thinkerlang.github.com/blob/13006a19c1c6e35146deddd688c03cb25079b06b/code/0808/death_match/arr.erl"&gt;You need to use arrays of up to 10,000 elements.&lt;/a&gt; Erlang offers you tuples as well as fixed-size and extensible pseudo-arrays. What is the fastest option?&lt;/p&gt;
 &lt;p&gt;Let us start the death match by pitting arrays against tuples in a death match. Trees were an option before the array module became available, so lets throw in trees just for laughs.&lt;/p&gt;
 &lt;p&gt;I&#8217;m running Mac &lt;span class="caps"&gt;OSX&lt;/span&gt; Leopard 10.5.4 on a Mac Pro 2&#215;2.8Ghz Quad-Core Intel Xeon with 14Gb 800Mhz DDR2 FB-&lt;span class="caps"&gt;DIMM&lt;/span&gt;.&lt;/p&gt;
 &lt;pre class="terminal"&gt;&lt;code&gt;
@@ -66,16 +66,11 @@ Tuple:            get:     6411µs, set: 24304490µs
 Tree:             get:    53681µs, set:   632795µs
 ok
 &lt;/code&gt;&lt;/pre&gt;
-
-Note that _timer:tc_ returns time in microseconds. I ran each test 3 times and the results above are from the third iteration.
-
-Trees in Erlang (gb_trees) are built on top of regular tuples and so is the array module. The array module is much more efficient about using tuples than a regular tree, though, and this is the reason why it's so much faster.
-
-The tuple test pre-allocates a tuple of 10k or 100k elements. There's no destructive assignment in Erlang and so the same large tuple needs to be allocated and discarded on every set operation. It's very inefficient to allocate and discard a large tuple on every set operation, thus naive tuple set is very slow.
-
-The array module uses an efficient tree-like internal representation:
-
-&lt;notextile&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;%% A tree is either a leaf, with LEAFSIZE elements (the &amp;quot;base&amp;quot;), an&lt;/span&gt;
+&lt;p&gt;Note that &lt;em&gt;timer:tc&lt;/em&gt; returns time in microseconds. I ran each test 3 times and the results above are from the third iteration.&lt;/p&gt;
+&lt;p&gt;Trees in Erlang (gb_trees) are built on top of regular tuples and so is the array module. The array module is much more efficient about using tuples than a regular tree, though, and this is the reason why it&#8217;s so much faster.&lt;/p&gt;
+&lt;p&gt;The tuple test pre-allocates a tuple of 10k or 100k elements. There&#8217;s no destructive assignment in Erlang and so the same large tuple needs to be allocated and discarded on every set operation. It&#8217;s very inefficient to allocate and discard a large tuple on every set operation, thus naive tuple set is very slow.&lt;/p&gt;
+&lt;p&gt;The array module uses an efficient tree-like internal representation:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;%% A tree is either a leaf, with LEAFSIZE elements (the &quot;base&quot;), an&lt;/span&gt;
 &lt;span class="c"&gt;%% internal node with LEAFSIZE+1 elements, or an unexpanded tree,&lt;/span&gt;
 &lt;span class="c"&gt;%% represented by a single integer: the number of elements that may be&lt;/span&gt;
 &lt;span class="c"&gt;%% stored in the tree when it is expanded. The last element of an&lt;/span&gt;
@@ -92,11 +87,8 @@ The array module uses an efficient tree-like internal representation:
 &lt;span class="c"&gt;%% Base 10 is a good choice, giving 2/3 of the possible speedup from&lt;/span&gt;
 &lt;span class="c"&gt;%% base 4, but only using 1/3 more memory. (Base 24 uses 65% more memory&lt;/span&gt;
 &lt;span class="c"&gt;%% per write than base 10, but the speedup is only 21%.)&lt;/span&gt;
-&lt;/pre&gt;&lt;p&gt;&lt;/div&gt;&lt;/notextile&gt;&lt;/p&gt;
-&lt;p&gt;It&#8217;s far more efficient to allocate small tuples on every set and this is why the array module wins hands down.&lt;/p&gt;
-&lt;p&gt;Use the code below to replicate my results on your hardware.&lt;/p&gt;
-
-&lt;p&gt;Enjoy!&lt;/p&gt;</content>
+&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;It&#8217;s far more efficient to allocate small tuples on every set and this is why the array module wins hands down.&lt;/p&gt;
+&lt;p&gt;Use &lt;a href="http://github.com/thinkerlang/thinkerlang.github.com/blob/13006a19c1c6e35146deddd688c03cb25079b06b/code/0808/death_match/arr.erl"&gt;this code&lt;/a&gt; to replicate my results on your hardware.&lt;/p&gt;</content>
  </entry>
  
  <entry>

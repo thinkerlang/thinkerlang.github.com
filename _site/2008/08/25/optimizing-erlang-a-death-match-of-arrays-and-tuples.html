@@ -26,10 +26,10 @@
 <h3>Optimizing Erlang &#8211; A death match of arrays and tuples</h3>
 <p class="meta">25 August 2008 &#8211; Tenerife</p>
 <p>This is the first in my series of posts on optimizing Erlang. I plan to tackle optimizing Mnesia, profiling and scalability.</p>
-<p><a href="http://groups.google.com/group/erlang-questions/browse_thread/thread/d171d2c4e997c29d">You need to use arrays of up to 10,000 elements.</a> Erlang offers you tuples as well as fixed-size and extensible pseudo-arrays. What is the fastest option?</p>
+<p><a href="http://github.com/thinkerlang/thinkerlang.github.com/blob/13006a19c1c6e35146deddd688c03cb25079b06b/code/0808/death_match/arr.erl">You need to use arrays of up to 10,000 elements.</a> Erlang offers you tuples as well as fixed-size and extensible pseudo-arrays. What is the fastest option?</p>
 <p>Let us start the death match by pitting arrays against tuples in a death match. Trees were an option before the array module became available, so lets throw in trees just for laughs.</p>
 <p>I&#8217;m running Mac <span class="caps">OSX</span> Leopard 10.5.4 on a Mac Pro 2&#215;2.8Ghz Quad-Core Intel Xeon with 14Gb 800Mhz DDR2 FB-<span class="caps">DIMM</span>.</p>
-<pre class="terminal"&gt;<code&gt;
+<pre class="terminal"><code>
 Erlang (BEAM) emulator version 5.6.3 [source] [64-bit] [smp:8] [async-threads:0] [kernel-poll:false]
 
 27&gt; arr:test().
@@ -45,38 +45,30 @@ Extensible array: get:    35349µs, set:    74059µs
 Tuple:            get:     6411µs, set: 24304490µs
 Tree:             get:    53681µs, set:   632795µs
 ok
-</code&gt;</pre&gt;
-
-Note that _timer:tc_ returns time in microseconds. I ran each test 3 times and the results above are from the third iteration.
-
-Trees in Erlang (gb_trees) are built on top of regular tuples and so is the array module. The array module is much more efficient about using tuples than a regular tree, though, and this is the reason why it's so much faster.
-
-The tuple test pre-allocates a tuple of 10k or 100k elements. There's no destructive assignment in Erlang and so the same large tuple needs to be allocated and discarded on every set operation. It's very inefficient to allocate and discard a large tuple on every set operation, thus naive tuple set is very slow.
-
-The array module uses an efficient tree-like internal representation:
-
-<notextile>&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;%% A tree is either a leaf, with LEAFSIZE elements (the &amp;quot;base&amp;quot;), an&lt;/span&gt;
-&lt;span class="c"&gt;%% internal node with LEAFSIZE+1 elements, or an unexpanded tree,&lt;/span&gt;
-&lt;span class="c"&gt;%% represented by a single integer: the number of elements that may be&lt;/span&gt;
-&lt;span class="c"&gt;%% stored in the tree when it is expanded. The last element of an&lt;/span&gt;
-&lt;span class="c"&gt;%% internal node caches the number of elements that may be stored in&lt;/span&gt;
-&lt;span class="c"&gt;%% each of its subtrees.&lt;/span&gt;
-&lt;span class="c"&gt;%%&lt;/span&gt;
-&lt;span class="c"&gt;%% Note that to update an entry in a tree of height h = log[b] n, the&lt;/span&gt;
-&lt;span class="c"&gt;%% total number of written words is (b+1)+(h-1)*(b+2), since tuples use&lt;/span&gt;
-&lt;span class="c"&gt;%% a header word on the heap. 4 is the optimal base for minimizing the&lt;/span&gt;
-&lt;span class="c"&gt;%% number of words written, but causes higher trees, which takes time.&lt;/span&gt;
-&lt;span class="c"&gt;%% The best compromise between speed and memory usage seems to lie&lt;/span&gt;
-&lt;span class="c"&gt;%% around 8-10. Measurements indicate that the optimum base for speed is&lt;/span&gt;
-&lt;span class="c"&gt;%% 24 - above that, it gets slower again due to the high memory usage.&lt;/span&gt;
-&lt;span class="c"&gt;%% Base 10 is a good choice, giving 2/3 of the possible speedup from&lt;/span&gt;
-&lt;span class="c"&gt;%% base 4, but only using 1/3 more memory. (Base 24 uses 65% more memory&lt;/span&gt;
-&lt;span class="c"&gt;%% per write than base 10, but the speedup is only 21%.)&lt;/span&gt;
-</pre><p></div></notextile></p>
-<p>It&#8217;s far more efficient to allocate small tuples on every set and this is why the array module wins hands down.</p>
-<p>Use the code below to replicate my results on your hardware.</p>
-
-<p>Enjoy!</p>
+</code></pre>
+<p>Note that <em>timer:tc</em> returns time in microseconds. I ran each test 3 times and the results above are from the third iteration.</p>
+<p>Trees in Erlang (gb_trees) are built on top of regular tuples and so is the array module. The array module is much more efficient about using tuples than a regular tree, though, and this is the reason why it&#8217;s so much faster.</p>
+<p>The tuple test pre-allocates a tuple of 10k or 100k elements. There&#8217;s no destructive assignment in Erlang and so the same large tuple needs to be allocated and discarded on every set operation. It&#8217;s very inefficient to allocate and discard a large tuple on every set operation, thus naive tuple set is very slow.</p>
+<p>The array module uses an efficient tree-like internal representation:</p>
+<div class="highlight"><pre><span class="c">%% A tree is either a leaf, with LEAFSIZE elements (the &quot;base&quot;), an</span>
+<span class="c">%% internal node with LEAFSIZE+1 elements, or an unexpanded tree,</span>
+<span class="c">%% represented by a single integer: the number of elements that may be</span>
+<span class="c">%% stored in the tree when it is expanded. The last element of an</span>
+<span class="c">%% internal node caches the number of elements that may be stored in</span>
+<span class="c">%% each of its subtrees.</span>
+<span class="c">%%</span>
+<span class="c">%% Note that to update an entry in a tree of height h = log[b] n, the</span>
+<span class="c">%% total number of written words is (b+1)+(h-1)*(b+2), since tuples use</span>
+<span class="c">%% a header word on the heap. 4 is the optimal base for minimizing the</span>
+<span class="c">%% number of words written, but causes higher trees, which takes time.</span>
+<span class="c">%% The best compromise between speed and memory usage seems to lie</span>
+<span class="c">%% around 8-10. Measurements indicate that the optimum base for speed is</span>
+<span class="c">%% 24 - above that, it gets slower again due to the high memory usage.</span>
+<span class="c">%% Base 10 is a good choice, giving 2/3 of the possible speedup from</span>
+<span class="c">%% base 4, but only using 1/3 more memory. (Base 24 uses 65% more memory</span>
+<span class="c">%% per write than base 10, but the speedup is only 21%.)</span>
+</pre></div><p>It&#8217;s far more efficient to allocate small tuples on every set and this is why the array module wins hands down.</p>
+<p>Use <a href="http://github.com/thinkerlang/thinkerlang.github.com/blob/13006a19c1c6e35146deddd688c03cb25079b06b/code/0808/death_match/arr.erl">this code</a> to replicate my results on your hardware.</p>
 </div>
 
 <div id="disqus_thread"></div><script type="text/javascript" src="http://disqus.com/forums/thinkerlang/embed.js"></script><noscript><a href="http://thinkerlang.disqus.com/?url=ref">View the discussion thread.</a></noscript><a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
