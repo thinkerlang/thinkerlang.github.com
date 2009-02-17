@@ -696,4 +696,3 @@ The last thing to note is that the pickler combinator approach is definitely les
 
 Full pickler combinator source code is available "here":http://wagerlabs.com/erlang/pickle.erl.
 
-"Discuss this article":http://groups.google.com/group/thinkerlang/browse_thread/thread/e7ba70d6787d81c

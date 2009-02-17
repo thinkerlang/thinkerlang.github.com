@@ -1,0 +1,42 @@
+---
+layout: post
+title: How to set up an ejabberd cluster on Amazon EC2 in 6 easy steps
+---
+
+h3. {{ page.title }}
+
+p(meta). 17 Feb 2009 - Tenerife
+
+1) Edit /etc/init.d/ejabberd
+
+node=`hostname -f`
+
+`hostname -s` does not work here.
+
+2) Edit /etc/init.d/ejabberd
+
+Use '-name ejabberd@$node' instead of '-sname ejabberd' everywhere. This applies to '-sname ejabberdctl' too.
+
+3) Edit /etc/init.d/ejabberd add mnesia_extra_db_nodes
+
+See the start() function, find the line that says
+
+-detached"
+
+and add the following right above
+
+-mnesia extra_db_nodes \"['<hostname -f of a running node>']\" \
+
+4) Remove the Mnesia db tables
+
+cd /var/lib/ejabberd/spool && rm -f *
+
+5) Edit /etc/ejabberd/ejabberdctl.cfg
+
+Make sure you have this at the very end
+
+ERLANG_NODE=ejabberd@`hostname -f`
+
+6) Make sure your .erlang.cookie files are the same on all nodes
+
+This will work with MySQL. Enjoy!

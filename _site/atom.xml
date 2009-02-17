@@ -1,0 +1,774 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+ 
+ <title>The Erlang Journal</title>
+ <link href="http://thinkerlang.com/atom.xml" rel="self"/>
+ <link href="http://thinkerlang.com/"/>
+ <updated>2009-02-17T21:04:23+00:00</updated>
+ <id>http://thinkerlang.com/</id>
+ <author>
+   <name>Joel Reymont</name>
+   <email>joelr1@gmail.com</email>
+ </author>
+
+ 
+ <entry>
+   <title>How to set up an ejabberd cluster on Amazon EC2 in 6 easy steps</title>
+   <link href="http://thinkerlang.com/2009/02/17/ejabberd-cluster-on-amazon-ec2-in-6-easy-steps.html"/>
+   <updated>2009-02-17T00:00:00+00:00</updated>
+   <id>http://thinkerlang.com/2009/02/17/ejabberd-cluster-on-amazon-ec2-in-6-easy-steps</id>
+   <content type="html">&lt;h3&gt;How to set up an ejabberd cluster on Amazon EC2 in 6 easy steps&lt;/h3&gt;
+&lt;p class="meta"&gt;17 Feb 2009 &#8211; Tenerife&lt;/p&gt;
+&lt;p&gt;1) Edit /etc/init.d/ejabberd&lt;/p&gt;
+&lt;p&gt;node=`hostname -f`&lt;/p&gt;
+&lt;p&gt;`hostname -s` does not work here.&lt;/p&gt;
+&lt;p&gt;2) Edit /etc/init.d/ejabberd&lt;/p&gt;
+&lt;p&gt;Use &#8216;-name ejabberd@$node&#8217; instead of &#8216;-sname ejabberd&#8217; everywhere. This applies to &#8216;-sname ejabberdctl&#8217; too.&lt;/p&gt;
+&lt;p&gt;3) Edit /etc/init.d/ejabberd add mnesia_extra_db_nodes&lt;/p&gt;
+&lt;p&gt;See the start() function, find the line that says&lt;/p&gt;
+&lt;p&gt;-detached&quot;&lt;/p&gt;
+&lt;p&gt;and add the following right above&lt;/p&gt;
+&lt;p&gt;-mnesia extra_db_nodes \&#8220;[&#8216;&lt;hostname -f of a running node&gt;&#8217;]\&#8221; \&lt;/p&gt;
+&lt;p&gt;4) Remove the Mnesia db tables&lt;/p&gt;
+&lt;p&gt;cd /var/lib/ejabberd/spool &amp;&amp; rm -f *&lt;/p&gt;
+&lt;p&gt;5) Edit /etc/ejabberd/ejabberdctl.cfg&lt;/p&gt;
+&lt;p&gt;Make sure you have this at the very end&lt;/p&gt;
+&lt;p&gt;ERLANG_NODE=ejabberd@`hostname -f`&lt;/p&gt;
+&lt;p&gt;6) Make sure your .erlang.cookie files are the same on all nodes&lt;/p&gt;
+&lt;p&gt;This will work with MySQL. Enjoy!&lt;/p&gt;</content>
+ </entry>
+ 
+ <entry>
+   <title>Optimizing Erlang - A death match of arrays and tuples</title>
+   <link href="http://thinkerlang.com/2008/08/25/optimizing-erlang-a-death-match-of-arrays-and-tuples.html"/>
+   <updated>2008-08-25T00:00:00+01:00</updated>
+   <id>http://thinkerlang.com/2008/08/25/optimizing-erlang-a-death-match-of-arrays-and-tuples</id>
+   <content type="html">&lt;h3&gt;Optimizing Erlang &#8211; A death match of arrays and tuples&lt;/h3&gt;
+&lt;p class="meta"&gt;25 August 2008 &#8211; Tenerife&lt;/p&gt;
+&lt;p&gt;This is the first in my series of posts on optimizing Erlang. I plan to tackle optimizing Mnesia, profiling and scalability.&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://groups.google.com/group/erlang-questions/browse_thread/thread/d171d2c4e997c29d"&gt;You need to use arrays of up to 10,000 elements.&lt;/a&gt; Erlang offers you tuples as well as fixed-size and extensible pseudo-arrays. What is the fastest option?&lt;/p&gt;
+&lt;p&gt;Let us start the death match by pitting arrays against tuples in a death match. Trees were an option before the array module became available, so lets throw in trees just for laughs.&lt;/p&gt;
+&lt;p&gt;I&#8217;m running Mac &lt;span class="caps"&gt;OSX&lt;/span&gt; Leopard 10.5.4 on a Mac Pro 2&#215;2.8Ghz Quad-Core Intel Xeon with 14Gb 800Mhz DDR2 FB-&lt;span class="caps"&gt;DIMM&lt;/span&gt;.&lt;/p&gt;
+&lt;pre class="terminal"&gt;&lt;code&gt;
+Erlang (BEAM) emulator version 5.6.3 [source] [64-bit] [smp:8] [async-threads:0] [kernel-poll:false]
+
+27&gt; arr:test().
+Fixed-size array: get:     2921µs, set:     5902µs
+Extensible array: get:     3336µs, set:     8144µs
+Tuple:            get:      632µs, set:   107467µs
+Tree:             get:     4321µs, set:    45256µs
+ok
+
+30&gt; arr:test(100000).
+Fixed-size array: get:    35314µs, set:    74653µs
+Extensible array: get:    35349µs, set:    74059µs
+Tuple:            get:     6411µs, set: 24304490µs
+Tree:             get:    53681µs, set:   632795µs
+ok
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Note that &lt;em&gt;timer:tc&lt;/em&gt; returns time in microseconds. I ran each test 3 times and the results above are from the third iteration.&lt;/p&gt;
+&lt;p&gt;Trees in Erlang (gb_trees) are built on top of regular tuples and so is the array module. The array module is much more efficient about using tuples than a regular tree, though, and this is the reason why it&#8217;s so much faster.&lt;/p&gt;
+&lt;p&gt;The tuple test pre-allocates a tuple of 10k or 100k elements. There&#8217;s no destructive assignment in Erlang and so the same large tuple needs to be allocated and discarded on every set operation. It&#8217;s very inefficient to allocate and discard a large tuple on every set operation, thus naive tuple set is very slow.&lt;/p&gt;
+&lt;p&gt;The array module uses an efficient tree-like internal representation:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;%% A tree is either a leaf, with LEAFSIZE elements (the &quot;base&quot;), an&lt;/span&gt;
+&lt;span class="c"&gt;%% internal node with LEAFSIZE+1 elements, or an unexpanded tree,&lt;/span&gt;
+&lt;span class="c"&gt;%% represented by a single integer: the number of elements that may be&lt;/span&gt;
+&lt;span class="c"&gt;%% stored in the tree when it is expanded. The last element of an&lt;/span&gt;
+&lt;span class="c"&gt;%% internal node caches the number of elements that may be stored in&lt;/span&gt;
+&lt;span class="c"&gt;%% each of its subtrees.&lt;/span&gt;
+&lt;span class="c"&gt;%%&lt;/span&gt;
+&lt;span class="c"&gt;%% Note that to update an entry in a tree of height h = log[b] n, the&lt;/span&gt;
+&lt;span class="c"&gt;%% total number of written words is (b+1)+(h-1)*(b+2), since tuples use&lt;/span&gt;
+&lt;span class="c"&gt;%% a header word on the heap. 4 is the optimal base for minimizing the&lt;/span&gt;
+&lt;span class="c"&gt;%% number of words written, but causes higher trees, which takes time.&lt;/span&gt;
+&lt;span class="c"&gt;%% The best compromise between speed and memory usage seems to lie&lt;/span&gt;
+&lt;span class="c"&gt;%% around 8-10. Measurements indicate that the optimum base for speed is&lt;/span&gt;
+&lt;span class="c"&gt;%% 24 - above that, it gets slower again due to the high memory usage.&lt;/span&gt;
+&lt;span class="c"&gt;%% Base 10 is a good choice, giving 2/3 of the possible speedup from&lt;/span&gt;
+&lt;span class="c"&gt;%% base 4, but only using 1/3 more memory. (Base 24 uses 65% more memory&lt;/span&gt;
+&lt;span class="c"&gt;%% per write than base 10, but the speedup is only 21%.)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;It&#8217;s far more efficient to allocate small tuples on every set and this is why the array module wins hands down.&lt;/p&gt;
+&lt;p&gt;Use the code below to replicate my results on your hardware.&lt;/p&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Parsing text and binary files with Erlang</title>
+   <link href="http://thinkerlang.com/2008/02/03/parsing-text-and-binary-files-with-erlang.html"/>
+   <updated>2008-02-03T00:00:00+00:00</updated>
+   <id>http://thinkerlang.com/2008/02/03/parsing-text-and-binary-files-with-erlang</id>
+   <content type="html">&lt;h1&gt;Parsing text and binary files with Erlang&lt;/h1&gt;
+&lt;p class="meta"&gt;03 Feb 2008 &#8211; Tenerife&lt;/p&gt;
+&lt;p&gt;Erlang originated in the telecommunications industry where one of the major tasks is conversion of text and binary data from one format to another. This is a task that Erlang excels at!&lt;/p&gt;
+&lt;p&gt;Parsing text and binary data is something that you will be doing very often in the course of writing your super-scalable internet servers so lets take a look at some efficient approaches to parsing text and binary data.&lt;/p&gt;
+&lt;h6&gt;Strings vs binaries&lt;/h6&gt;
+&lt;p&gt;Erlang does not have a built-in string data type. Strings are simulated on top of lists of integers. In a 32-bit Erlang virtual machine (VM) an integer is 4 bytes and we need 4 more bytes for a pointer to the next element of the list, for a total of 8 bytes per &#8220;character&#8221;. In 64-bit VM this number doubles.&lt;/p&gt;
+&lt;p&gt;Why should you care?&lt;/p&gt;
+&lt;p&gt;Each network connection to your servers will require certain amount of memory to send and receive data. A lot of protocols used on the internet, such as &lt;span class="caps"&gt;XML&lt;/span&gt;, are text and quite verbose at that. Imagine receiving a 10 kilobyte &lt;span class="caps"&gt;XML&lt;/span&gt; message, for example. Converting this message to a string for processing will inflate its size to 80K or 160K respectively.&lt;/p&gt;
+&lt;p&gt;When network connections to your server number in the thousands, it becomes necessary to minimize the amount of memory each connection requires for processing data that is sent and received. Any received message will also become garbage once it&#8217;s converted to an Erlang data structure and this garbage will need to be collected. The less garbage we generate, the less work the garbage collector has to do and the more responsive our server will become.&lt;/p&gt;
+&lt;p&gt;Lets keep binary data we receive from the network as binary data and avoid converting it to strings. Parsing of binary data is specially fast and convenient with special syntax for constructing binaries and matching binary patterns as well as bit strings and binary comprehensions. String processing enjoys no such advantage.&lt;/p&gt;
+&lt;p&gt;Remember that all Erlang input and output functions can deal with binary data. Any program that sticks to binary data processing will work much faster than a similar program that converts binary data to strings for processing!&lt;/p&gt;
+&lt;p&gt;That said, lets hammer a final nail into the Erlang string coffin and look at how we can process text as binary data.&lt;/p&gt;
+&lt;h6&gt;Processing text files as binaries&lt;/h6&gt;
+&lt;p&gt;Suppose we have a comma-delimited text file to parse. We need to split each line into a list of fields and collect our lines into a list. The file is not too large so we can afford to load it into memory in one fell swoop. This is our code in a nutshell.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    -module(act).
+    -compile([export_all]).
+
+    parse(Filename) when is_list(Filename) -&gt;
+        {ok, Bin} = file:read_file(Filename),
+        parse(Bin).
+
+    parse(Bin) when is_binary(Bin) -&gt;
+        parse(Bin, [], [], []).
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Note that the empty lists are the initial values for our accumulators. Field is the list of characters that represents the current field we are processing. Line is the list of fields we have gathered while processing the current line. Finally, Acc is the list of lines we have gathered while processing our file.&lt;/p&gt;
+&lt;p&gt;We also have two functions named parse here: one that takes a Filename string (a list of integers) and another that takes a binary. Keeping the function name the same  and using guards is strictly a matter of taste. I could have just as well called the second parse function &lt;strong&gt;parse1&lt;/strong&gt; or &lt;strong&gt;do_parse&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Erlang functions are distinguished based on their number of arguments and there&#8217;s a special &lt;strong&gt;fun_name/num_args&lt;/strong&gt; notation to reflect that. Our parse function above would be written as &lt;strong&gt;parse/1&lt;/strong&gt;. When the number of arguments is the same, the functions are distinguished based on guards such as &lt;strong&gt;is_list&lt;/strong&gt; or &lt;strong&gt;is_binary&lt;/strong&gt; above.&lt;/p&gt;
+&lt;p&gt;It&#8217;s good coding practice to present a neat interface to the outside world. &lt;strong&gt;parse/1&lt;/strong&gt; above would serve that purpose and &lt;strong&gt;parse/4&lt;/strong&gt; below would not.  &lt;strong&gt;parse/1&lt;/strong&gt; takes just one argument whereas &lt;strong&gt;parse/4&lt;/strong&gt; clutters the interface with three extra arguments. As a user of the parsing module I would not know the purpose of the Field, Line and Acc arguments to &lt;strong&gt;parse/4&lt;/strong&gt; below.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    parse(&lt;&lt;$\,, Rest/binary&gt;&gt;, Field, Line, Acc) -&gt;
+        parse(Rest, [], [lists:reverse(Field)|Line], Acc);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;$\,&lt;/strong&gt; matches the tab character and Rest matches the rest of the binary. It&#8217;s quite fast to add to the beginning of the list but the accumulated list needs to be reversed when we are done. Also, we almost certainly have accumulated a field by the time we hit the tab. This is why we reverse the field accumulator, prepend it to the accumulated list of fields and start our next iteration (recurse) with an empty field accumulator.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    parse(&lt;&lt;$\r, Rest/binary&gt;&gt;, Field, Line, Acc) -&gt;
+        parse(Rest, Field, Line, Acc);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Just in case we have been given a file produced on Windows, we skip the carriage return character (&lt;strong&gt;$\r&lt;/strong&gt;) and start on our next recursive iteration.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    parse(&lt;&lt;$\n, Rest/binary&gt;&gt;, Field, Line, Acc) -&gt;
+        Field1 = lists:reverse(Field),
+        FieldList = [Field1|Line],
+        parse(Rest, [], [], [FieldList|Acc]);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;A new line (&lt;strong&gt;$\n&lt;/strong&gt;) means that we have hit the end of our current line and need to start processing a new one. We start this processing with empty field and line accumulators and prepend the list of fields to the lines accumulator Acc.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    parse(&lt;&lt;Char, Rest/binary&gt;&gt;, Field, Line, Acc) -&gt;
+        parse(Rest, [Char|Field], Line, Acc);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We prepend any character not matching our field or line delimiters to the field accumulator and keep going.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    parse(&lt;&lt;&gt;&gt;, [], [], Acc) -&gt;
+        {ok, lists:reverse(Acc)};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We do run out of binary data to process at some point in time and detect this fact by matching the empty binary &lt;strong&gt;&lt;&lt;&gt;&gt;&lt;/strong&gt;. If our field and line accumulators are empty then we are done. We do need to reverse the list of lines that we have accumulated to return them in their original order.&lt;/p&gt;
+&lt;pre&gt;&lt;/code&gt;
+    parse(&lt;&lt;&gt;&gt;, Field, Line, Acc) -&gt;
+        parse(&lt;&lt;$\n&gt;&gt;, Field, Line, Acc).
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;What do we do if our accumulators are not empty by the time we are done processing? We can add custom processing code, of course, but wouldn&#8217;t it be better to leverage code that we have already written? We already go through the proper motions when we find a new line so to make our job easier we make it look like we found one. We continue parsing by creating a small fake binary with a single new line character.&lt;/p&gt;
+&lt;h6&gt;Processing binary data the hard way&lt;br /&gt;
+    &lt;br /&gt;
+You did not misread it! Yes, the customary way of processing Erlang binaries is the hard way. It&#8217;s low level and involves lots of typing and a good deal of code duplication. It&#8217;s also the fastest and most efficient way.&lt;/h6&gt;
+&lt;p&gt;I will show you a less efficient but more structured way to process binary data later in this chapter. We need to learn to walk before we learn to run so lets take a look at how you normally process binary data in Erlang.&lt;/p&gt;
+&lt;p&gt;Here&#8217;s a chunk of the binary protocol that my OpenPoker server uses.&lt;/p&gt;
+&lt;p&gt;Packet format:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    0  1   2        N
+    +--+---+--- ... +
+    | Size | Body   |
+    +------+--- ... +
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Body:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    0      1           N
+    +------+--- ... ---+
+    | Type | Arguments |
+    +------+--- ... ---+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Each packet starts with a 2-byte packet size then a 1-byte packet type and the data payload. The body of a NOTIFY_JOIN command will then look like this:&lt;/p&gt;
+&lt;p&gt;NOTIFY_JOIN:&lt;/p&gt;
+&lt;p&gt;Player joined.&lt;/p&gt;
+&lt;p&gt;Nick: String.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    0    1     5     9      10    12
+    +----+-----+-----+-------+-----+
+    | 21 | GID | PID | Seat# | Seq |
+    +----+-----+-----+-------+-----+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;span class="caps"&gt;GID&lt;/span&gt; and &lt;span class="caps"&gt;PID&lt;/span&gt; are 4-byte integers, the seat number is a byte and the sequence number a 2-byte integer. We need one function to read this command from a binary packet and return something easy to deal with, e.g. a tuple.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    read(&lt;&lt;?PP_NOTIFY_JOIN, GID:32, PID:32, SeatNum, Seq:16&gt;&gt;) -&gt;
+        {21, GID, PID, SeatNum, Seq};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;To send the command out through the socket, we first need to convert the tuple to a binary.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    write({21, GID, Player, SeatNum, Seq})
+    when is_number(GID),
+         is_pid(Player),
+         is_number(SeatNum),
+         is_number(Seq) -&gt;
+        PID = gen_server:call(Player, 'ID'),
+        &lt;&lt;21, GID:32, PID:32, SeatNum, Seq:16&gt;&gt;;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;There are scores of commands in the OpenPoker protocol and the number will grow as new functionality is added. I did write code like the above for each and every command in the OpenPoker protocol and I wish I knew a way that enabled more code reuse.&lt;/p&gt;
+&lt;p&gt;What you should walk away with here is that reading and writing binary data in Erlang is simple and straightforward.&lt;/p&gt;
+&lt;h6&gt;Pickler combinators&lt;/h6&gt;
+&lt;p&gt;The OpenPoker protocol handling code is quite verbose. The protocol is also very much flat as it does not involve nested data structures. There is a way to describe reading and writing of structured data and generally save ourselves time and typing.&lt;/p&gt;
+&lt;p&gt;Andrew Kennedy coined the term pickler combinator in his &lt;a href="http://research.microsoft.com/~akenn/fun/picklercombinators.pdf"&gt;2004 &#8216;Functional Pearl&#8217; of the same name&lt;/a&gt;. He wrote that&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;The tedium of writing pickling and unpickling functions by hand is relieved using a combinator library similar in spirit to the well-known parser combinators. Picklers for primitive types are combined to support tupling, alternation, recursion, and structure sharing.&lt;br /&gt;
+      &lt;br /&gt;
+Andrew Kennedy&#8217;s implementation used &lt;span class="caps"&gt;SML&lt;/span&gt; and is an Erlang book. We are still still functional programmers, though, so lets see what we can do&#8230;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;pre&gt;&lt;code&gt;
+    -module(pickle).
+
+    -export([pickle/2, unpickle/2, test/0]).
+    -export([byte/0, short/0, sshort/0, 
+    	 int/0, sint/0, long/0, slong/0]).
+    -export([list/2, choice/2, optional/1, wrap/2,
+    	 tuple/1, record/2, binary/1, wstring/0]).
+
+    -compile([export_all]).
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Let&#8217;s design and implement a pickling module that will save us a lot of typing down the road. The goal is to save us a lot of typing and enable us to describe our packet formats in terms of bytes, words and strings, as opposed to bits and binaries.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    %%% Pickle and unpickle. We accumulate into a list.
+
+    pickle({Pickler, _}, Value) -&gt;
+        lists:reverse(Pickler([], Value)).
+
+    unpickle({_, Pickler}, Bin) -&gt;
+        element(1, Pickler(Bin)).
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;pickle&lt;/strong&gt; and &lt;strong&gt;unpickle&lt;/strong&gt; are responsible for doing the work for us and like a good manager they delegate the bulk of the work to their underlings. Note that the pickler combinator is represented by a two-element tuple where the first element is the function used for pickling and the second element for unpickling.&lt;/p&gt;
+&lt;p&gt;To pickle any Erlang term, we give pickle the tuple representing the pickler combinator as well as the value. Binaries, while convenient, don&#8217;t lend themselves to accumulating values so we accumulate the pickled data into a list. Fortunately for us, the Erlang input/output system can take lists and convert them to binaries for us.&lt;/p&gt;
+&lt;p&gt;To unpickle a binary we invoke the un-pickler on it and take the first element of the resulting tuple. Why does the unpickler return a tuple? We may have data left over from processing and it needs to be stored somewhere. The first element of the tuple stores the result of the unpickle operation and the second stores the remainder of the data.&lt;/p&gt;
+&lt;p&gt;Without further ado lets implement a pickler combinator for serializing byte data.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    %%% Byte
+
+    byte() -&gt; 
+        {fun write_byte/2, fun read_byte/1}.
+
+    write_byte(Acc, Byte) -&gt; 
+        [&lt;&lt;Byte:8&gt;&gt;|Acc].
+
+    read_byte(Bin) -&gt; 
+        &lt;&lt;Byte:8, Rest/binary&gt;&gt; = Bin,
+        {Byte, Rest}.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;byte&lt;/strong&gt; is the name of the combinator and &lt;strong&gt;byte/0&lt;/strong&gt; simply returns a tuple of the pickler and unpickler functions. This is the pattern that we will be using over and over again. Also, picklers take the list serving as accumulator as their fist argument and the Erlang value as their second argument.&lt;/p&gt;
+&lt;p&gt;To pickle a byte we simply tell Erlang to prepend the binary representation of the byte &lt;strong&gt;&lt;&lt;Byte:8&gt;&gt;&lt;/strong&gt; to the accumulator list. To unpickle a byte, &lt;strong&gt;read_byte/1&lt;/strong&gt; splits the binary into the byte itself and the remainder of the data and returns both as a tuple.&lt;/p&gt;
+&lt;p&gt;Simple, isn&#8217;t it?&lt;/p&gt;
+&lt;p&gt;A pickler combinator for unsigned short values stored in little-endian format looks like this.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    %%% Unsigned short
+
+    short() -&gt; 
+        {fun write_short/2, fun read_short/1}.
+     
+    write_short(Acc, Word) -&gt; 
+        [&lt;&lt;Word:16/little&gt;&gt;|Acc].
+
+    read_short(Bin) -&gt; 
+        &lt;&lt;Word:16/little, Rest/binary&gt;&gt; = Bin,
+        {Word, Rest}.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Signed short is implemented similarly, the only difference is that we use little-signed instead of little.&lt;/p&gt;
+&lt;pre&gt;&lt;/code&gt;
+    %%% Signed short
+
+    sshort() -&gt; 
+        {fun write_sshort/2, fun read_sshort/1}.
+
+    write_sshort(Acc, Word) -&gt; 
+        [&lt;&lt;Word:16/little-signed&gt;&gt;|Acc].
+
+    read_sshort(Bin) -&gt; 
+        &lt;&lt;Word:16/little-signed, Rest/binary&gt;&gt; = Bin,
+        {Word, Rest}.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;I will skip the implementation of signed and unsigned integers and long integers. You can find the full code at the end of this book. It&#8217;s much more interesting to ponder the design of a list combinator.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    %%% List. We supply a pickler for list length 
+    %%% as well as a pickler for list elements.
+
+    list(Len, Elem) -&gt;
+        {fun(Acc, List) -&gt; write_list(Len, Elem, Acc, List) end, 
+         fun(Bin) -&gt; read_list(Len, Elem, Bin) end }.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To pickle and unpickle a list we need to pickle the length of the list and then pickle each element of the list in sequence. The only requirement for the picker and unpickler functions is to take certain arguments and return values in the format that the library expects.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;list/2&lt;/strong&gt; returns a tuple of anonymous functions that follow this convention. The functions that are ultimately invoked look a bit different.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    write_list({Len, _}, {Elem, _}, Acc, List) -&gt;
+        Acc1 = Len(Acc, length(List)),
+        Fun = fun(A, Acc2) -&gt; Elem(Acc2, A) end,
+        lists:foldr(Fun, Acc1, List).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;write_list/4&lt;/strong&gt; takes both the pickler for the length of the list and the pickler for each element. Remember that each pickler returns a list of pickled binary chunks. The length pickler itself is primed with the list of previously pickled chunks given to &lt;strong&gt;write_list/4 (Acc)&lt;/strong&gt;. Acc1 is the list of binary chunks resulting from the pickling of the list length (Len) together with the list of chunks accumulated before the call to &lt;strong&gt;write_list/4&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;I won&#8217;t be explaining &lt;strong&gt;lists:foldr/3&lt;/strong&gt; but we are creating an anonymous function (Fun) that will be invoked for each element of the to-be-pickled list we are given (List). This anonymous function will then invoke the list element pickler and return the list of binary chunks we have pickled so far, to prime &lt;strong&gt;list:foldr/3&lt;/strong&gt; on its next iteration.&lt;/p&gt;
+&lt;p&gt;Reading a pickled list aka unpickling is, again, a two step operation.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    read_list({_, Len}, {_, Elem}, Bin) -&gt;
+        {N, Bin1} = Len(Bin),
+        read_list(N, [], Elem, Bin1).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;First we unpickle the list length. This gives us both the number of elements to read and the remainder of our binary data. We then proceed to unpickle the list itself using the data that was left over.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    read_list(0, Acc, _, Bin) -&gt; {Acc, Bin};
+    read_list(N, Acc, Elem, Bin) -&gt;
+        {E, Bin1} = Elem(Bin),
+        read_list(N - 1, [E|Acc], Elem, Bin1).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There are no for loops in Erlang but they are easily emulated with recursion. We unpickle each element of the list, accumulate it and proceed to unpickle the next element after decrementing the number of elements read. We finish once we have reached 0.&lt;/p&gt;
+&lt;p&gt;Often, we will need to store different data depending on some flag. This requires us to both store the value of the flag and store the data. The choice combinator implements this alternative selection.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    %%% Alternative selection. This could probably use some
+    %%% deeper thinking. Otherwise, we take a pickler for the tag
+    %%% as well as a tuple of two functions. The first one
+    %%% returns the tag value and a pickler based on the supplied
+    %%% value. The second one selects a pickler based on a tag value.
+
+    choice(Tag, Choice) -&gt;
+        {fun(Acc, Value) -&gt; write_choice(Tag, Choice, Acc, Value) end,
+         fun(Bin) -&gt; read_choice(Tag, Choice, Bin) end }.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;There&#8217;s not much to say about choice itself. It looks a lot like the list combinator that we have just implemented.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    write_choice({Tag, _}, {Choice, _}, Acc, Value) 
+      when is_function(Tag), 
+           is_function(Choice) -&gt;
+        {T, {Pickler, _}} = Choice(Value),
+        Acc1 = Tag(Acc, T),
+        Pickler(Acc1, Value).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The choice helper function (selector) analyzes the data we are pickling and returns both a tag to store and the combinator to use for the data. We serialize the tag and the value right after it.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    read_choice({_, Tag}, {_, Choice}, Bin) 
+      when is_function(Tag), 
+           is_function(Choice) -&gt;
+        {T, Bin1} = Tag(Bin),
+        {_, Pickler} = Choice(T),
+        Pickler(Bin1).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We work in the opposite direction to unpickle. We first unpickle the tag and let the choice function (selector) give us the combinator to use for the data. We use this combinator to unpickle the data.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    %%% Optional value. Use 'none' to indicate no value.
+
+    optional(Pickler) -&gt;
+        {fun(Acc, Value) -&gt; write_optional(Pickler, Acc, Value) end,
+         fun(Bin) -&gt; read_optional(Pickler, Bin) end}.
+	      
+    write_optional(_, Acc, none) -&gt;
+        [&lt;&lt;0&gt;&gt;|Acc];
+
+    write_optional({Pickler, _}, Acc, Value) -&gt;
+        Pickler([&lt;&lt;1&gt;&gt;|Acc], Value).
+
+    read_optional({_, Pickler}, Bin) -&gt;
+        &lt;&lt;Opt:8, Bin1/binary&gt;&gt; = Bin,
+        case Opt of 
+    	    0 -&gt; {none, Bin1};
+    	    _ -&gt; Pickler(Bin1)
+        end.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;To serialize optional values (i.e. value or nothing) we pickle 0 when there&#8217;s no value and 1 otherwise.&lt;/p&gt;
+&lt;p&gt;The value of the wrapper combinator may not be readily apparent but bear with me, it will come in handy to implement serialization of enumerations!&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    %%% Wrapper. Take a pickler and a wrapper tuple of two functions
+    %%% where the first one is used to convert the value before 
+    %%% pickling and the second one after unpickling.
+
+    wrap(Wrap, Pickler) -&gt;
+        {fun(Acc, Value) -&gt; write_wrap(Wrap, Pickler, Acc, Value) end,
+         fun(Bin) -&gt; read_wrap(Wrap, Pickler, Bin) end}.
+
+    write_wrap({Wrap, _}, {Pickler, _}, Acc, Value) -&gt;
+        Pickler(Acc, Wrap(Value)).
+
+    read_wrap({_, Wrap}, {_, Pickler}, Bin) -&gt;
+        {Value, Bin1} = Pickler(Bin),
+        {Wrap(Value), Bin1}.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This combinator resembles the list combinator we implemented previously but instead of taking a combinator used to serialize the list length, it takes a helper function used to transform the data before pickling and after unpickling.&lt;/p&gt;
+&lt;p&gt;Erlang does not support enumerations but I want to have enumerations where values increase sequentially such as &lt;strong&gt;{cow, sheep, horse}&lt;/strong&gt;. I also want to be able to explicitly assign a value to each element of the enumeration, e.g. &lt;strong&gt;[{cow, 10}, {sheep, 100}]&lt;/strong&gt;. Finally, the whole point of the exercise is to be able to marshal these enumerations back and forth.&lt;/p&gt;
+&lt;p&gt;We will assume that enumerated values given as a tuple start from 1.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    enum(Enum, Pickler) -&gt;
+        wrap(wrap_enum(Enum), Pickler).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The &lt;strong&gt;enum/2&lt;/strong&gt; combinator takes both the format of the enumeration (list or tuple) as well as the pickler for the enumeration value. It&#8217;s clear in its simplicity but it&#8217;s also clear that it&#8217;s hiding something!&lt;/p&gt;
+&lt;p&gt;What is &lt;strong&gt;wrap_enum/1&lt;/strong&gt; and why do we need it?&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    wrap_enum(Enum) 
+      when is_tuple(Enum) -&gt;
+        wrap_enum_1(prep_enum_tuple(Enum));
+
+    wrap_enum(Enum) 
+      when is_list(Enum) -&gt;
+        wrap_enum_1(prep_enum_list(Enum)).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Recall that the format of our enumeration can be given both as a tuple and a list. We will pre-process the enumeration format to convert it to a list when it&#8217;s given to us as a tuple.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    prep_enum_tuple(Enum)
+      when is_tuple(Enum) -&gt;
+        prep_enum_tuple(Enum, size(Enum), [], []).
+
+    prep_enum_tuple(_, 0, Acc1, Acc2) -&gt;
+        {Acc1, Acc2};
+
+    prep_enum_tuple(Enum, N, Acc1, Acc2) -&gt;
+        prep_enum_tuple(Enum, N - 1, 
+    		    [{element(N, Enum), N}|Acc1],
+    		    [{N, element(N, Enum)}|Acc2]).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The above will convert &lt;strong&gt;{cow, sheep, horse}&lt;/strong&gt; into a pair (tuple of two elements) of lists &lt;strong&gt;[{cow, 1}, {sheep, 2}, {horse, 3}]&lt;/strong&gt; and &lt;strong&gt;[{1, cow}, {2, sheep}, {3, horse}]&lt;/strong&gt;. We need the regular list to convert cow into 1 for pickling and the inverted list to convert 1 back into cow.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    prep_enum_list(Enum) 
+      when is_list(Enum) -&gt;
+        % expect a list of {tag, #value} pairs
+        Inv = fun({Key, Val}) -&gt; {Val, Key} end,
+        InvEnum = lists:map(Inv, Enum),
+        {Enum, InvEnum}.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The only thing we need to do when the format of the enumeration is a list is to create the inverted list of pairs. The anonymous function &lt;strong&gt;Inv&lt;/strong&gt; swaps &lt;strong&gt;{cow, 100}&lt;/strong&gt; for &lt;strong&gt;{100, cow}&lt;/strong&gt;. We use &lt;strong&gt;lists:map/2&lt;/strong&gt; to apply our anonymous function to each element of the enumeration specification list, thus inverting each element.&lt;/p&gt;
+&lt;p&gt;And here&#8217;s the ultimate wrapper, the function that we spent so much time gearing up to!&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    wrap_enum_1({List1, List2}) -&gt;
+        F = fun(A, B) -&gt; A &lt; B end,
+        %% gb_trees needs an ordered list
+        Dict1 = lists:sort(F, List1),
+        Dict2 = lists:sort(F, List2),
+        Tree1 = gb_trees:from_orddict(Dict1),
+        Tree2 = gb_trees:from_orddict(Dict2),
+        {fun(Key) -&gt; gb_trees:get(Key, Tree1) end,
+         fun(Key) -&gt; gb_trees:get(Key, Tree2) end}.	      
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The module gb_trees implements a lightweight hash table using Erlang tuples.We order our enumeration lists and convert them to gb_trees to make lookups simple. We save two trees, one to look up cow using 1 and another to look up 1 using cow.&lt;/p&gt;
+&lt;p&gt;This completes our processing of enumerations. There&#8217;s one last hill to climb and then I promise you that we will be in combinator nirvana! But first we need to handle serialization of tuples and Erlang records.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    %%% Tuple. Uses a tuple of picklers of the same size.
+
+    tuple(Picklers) 
+      when is_tuple(Picklers) -&gt;
+        wrap({fun tuple_to_list/1, 
+    	  fun list_to_tuple/1}, 
+    	 tuple_0(tuple_to_list(Picklers))).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We reuse the wraping code we just develop to ensure that each tuple is pickled as a list and that each list is converted back to a tuple after we deserialize it.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    record(Tag, Picklers) 
+      when is_tuple(Picklers) -&gt;
+        wrap({fun(Record) -&gt; record_to_list(Tag, Record) end,
+    	  fun(List) -&gt; list_to_record(Tag, List) end}, 
+    	 tuple_0(tuple_to_list(Picklers))).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We rely on Erlang records being tuples and just add the record tag as the first element when unpickling the record.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    write_tuple_0([], Acc, _) -&gt;
+        Acc;
+
+    write_tuple_0([{Pickler, _}|Rest], Acc, [Value|Tuple]) -&gt;
+        write_tuple_0(Rest, Pickler(Acc, Value), Tuple).
+
+    read_tuple_0(Picklers, Bin) -&gt;
+        read_tuple_0(Picklers, Bin, []).
+
+    read_tuple_0([], Bin, Acc) -&gt;
+        {lists:reverse(Acc), Bin};
+
+    read_tuple_0([{_, Pickler}|Rest], Bin, Acc) -&gt;
+        {Value, Bin1} = Pickler(Bin),
+        read_tuple_0(Rest, Bin1, [Value|Acc]).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We serialize a tuple by requiring a tuple of combinators of the same length.We then convert the tuple of combinators to a list to simplify processing. We pickle and unpickle recursively, using the accumulator idiom.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    %%% It's convenient to be able to convert the tuple
+    %%% to a list first as there's no erlang:prepend_element/2.
+
+    tuple_0(Picklers) 
+      when is_list(Picklers) -&gt;
+        {fun(Acc, Value) -&gt; write_tuple_0(Picklers, Acc, Value) end,
+         fun(Bin) -&gt; read_tuple_0(Picklers, Bin) end}.
+
+    record_to_list(Tag, Record) 
+      when is_atom(Tag) -&gt;
+        lists:nthtail(1, tuple_to_list(Record)).
+
+    list_to_record(Tag, List) 
+      when is_atom(Tag), 
+           is_list(List) -&gt;
+        list_to_tuple([Tag|List]).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Erlang records are regular tuples where the first element of the tuple is the record tag. When pickling a record we convert the record to a list and drop the first element (tag). When unpickling we prepend the tag. We never store the tag itself since the record combinator &#8220;knows it&#8221;.&lt;/p&gt;
+&lt;p&gt;We&#8217;ll skip the implementation of the binary combinator since it&#8217;s nothing fancy. You can find the full code at the end of the book.&lt;/p&gt;
+&lt;p&gt;Now is a good time to tackle testing.&lt;/p&gt;
+&lt;p&gt;Erlang macro facilities could definitely be better but they are also nothing to sneeze at! Lets define a couple of macros to help us with writing our unit tests.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    -define(error1(Expr, Expected, Actual),
+    	io:format("~s is ~w instead of ~w at ~w:~w~n",
+    		  [??Expr, Actual, Expected, ?MODULE, ?LINE])).
+
+    -define(match(Expected, Expr),
+            fun() -&gt;
+    		Actual = (catch (Expr)),
+    		case Actual of
+    		    Expected -&gt;
+    			{success, Actual};
+    		    _ -&gt;
+    			?error1(Expr, Expected, Actual),
+    			erlang:error("match failed", Actual)
+    		end
+    	end()).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We will be using &lt;strong&gt;match/2&lt;/strong&gt; a lot to make sure that whatever we pickle matches whatever we get after unpickling.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    check(Pickler, Value) -&gt;
+        X = pickle(Pickler, Value),
+        Bin = list_to_binary(X),
+        unpickle(Pickler, Bin).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This little function is our testing workhorse. It takes a pickler combinator and a value and proceed to pickle a value and unpicle it using the same combinator.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    test1() -&gt;
+        X = 16#ff,
+        ?match(X, check(byte(), X)).
+
+    test3() -&gt;
+        X = -1,
+        ?match(X, check(sshort(), X)).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;This is what our tests look like. We give check a combinator and a value and use our match macro to check results. I&#8217;ll skip a few non-essential tests since you have the full source code at the end of the book. I do want to spend time on other tests, though, since these tests server as the manual and documentation for our pickler combinator library.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    test8() -&gt;
+        X = "Wazzup!",
+        ?match(X, check(list(int(), byte()), X)).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We serialize the length of the list as an integer and each elment as a byte. Erlang strings are nothing but lists of integers but &lt;span class="caps"&gt;ASCII&lt;/span&gt; character values fit within a byte. There&#8217;s nothing preventing you from using the int combinator to serialize elements of the list, though.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    value2tag(Action) 
+      when is_list(Action) -&gt;
+        {0, list(byte(), byte())};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We want to serialize either a list of bytes where the length of the list is also stored as a byte or a long value. We use 0 as a tag for the list.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    value2tag(_) -&gt;
+        {1, long()}.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And store 1 when the following value is a long.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    tag2value(0) -&gt;
+        list(byte(), byte());
+
+    tag2value(1) -&gt;
+        long().
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We reverse things when unpickling. If a tag value of 0 is found then we return the list combinator and otherwise return the long one.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    selector() -&gt;
+        {fun value2tag/1, fun tag2value/1}.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;selector simply combines the above tag convertors together.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    test9() -&gt;
+        X1 = "Just testing",
+        X2 = 16#ffff,
+        ?match(X1, check(choice(byte(), selector()), X1)),
+        ?match(X2, check(choice(byte(), selector()), X2)).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We need to make sure that pickling and unpickling both the string (list) and the long value works. And it does!&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    test10() -&gt;
+        X1 = none,
+        X2 = 55,
+        ?match(X1, check(optional(byte()), X1)),
+        ?match(X2, check(optional(byte()), X2)).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We use none to stand for no value.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    test11() -&gt;
+        %% tuple enum
+        Enum1 = {cow, sheep, horse},
+        {FROM1, TO1} = wrap_enum(Enum1),
+        ?match(1, FROM1(cow)),
+        ?match(2, FROM1(sheep)),
+        ?match(3, FROM1(horse)),
+        ?match(cow, TO1(1)),
+        ?match(sheep, TO1(2)),
+        ?match(horse, TO1(3)),
+        %% list enum
+        Enum2 = [{cow, 20}, {sheep, 30}, {horse, 40}],
+        {FROM2, TO2} = wrap_enum(Enum2),
+        ?match(20, FROM2(cow)),
+        ?match(30, FROM2(sheep)),
+        ?match(40, FROM2(horse)),
+        ?match(cow, TO2(20)),
+        ?match(sheep, TO2(30)),
+        ?match(horse, TO2(40)).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Personally, I found the enumeration combinator the most tedious to describe, probably because there&#8217;s so much supporting code. That supporting code needs to be tested and we do it here. wrap_enum works like a charm!&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    test12() -&gt;
+        Enum1 = {cow, sheep, horse},
+        Enum2 = [{cow, 20}, {sheep, 30}, {horse, 40}],
+        ?match(cow, check(enum(Enum1, byte()), cow)),
+        ?match(sheep, check(enum(Enum2, byte()), sheep)).
+&lt;/code&gt;&lt;pre&gt;
+    
+Once we know our supporting code works, we can proceed with the rest. Here we test enumerations given as a tuple and a list of key/value pairs. Farm animals galore!
+
+&lt;pre&gt;&lt;code&gt;
+    test13() -&gt;
+        Tuple = {"Joel", 16#ff00, none},
+        Spec = {list(byte(),byte()), short(), optional(byte())},
+        ?match(Tuple, check(tuple(Spec), Tuple)).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Tuple combinators, remember those? We use a tuple of combinators to pickle a tuple of values. The size of both tuples must be the same but the values can be anything. Here we use a string, a short and an optional byte.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    -record(foo, { a, b }).
+    -record(bar, { c, d }).
+    -record(baz, { e, f }).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Records are important to an Erlang programmer, even though they are syntactic sugar on top of tuples. I would be quickly left without hair to tear out, if I always had to use &lt;strong&gt;element/2&lt;/strong&gt; to access tuple elements by number.&lt;/p&gt;
+&lt;p&gt;We define a we records for the purposes of testing.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    test14() -&gt;
+        R = #baz{ e = 30, f = "Enough nesting!" },
+        R1 = #foo{ a = 10, b = #bar{ c = 20, d = R }},
+        Pickler = record(foo, {
+    		       byte(),
+    		       record(bar, {
+    				int(),
+    				record(baz, {
+    					 sshort(),
+    					 list(byte(), byte())
+    					})
+    			       })
+    		      }),
+        ?match(R1, check(Pickler, R1)).
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here&#8217;s the mother of all tests where we pickle a bunch of nested records with mixed values and restore them back to their original glory. This concludes our presentation of pickler combinators. Please feel free to use them as you see fit and don&#8217;t forget to send me any ideas for improvement!&lt;/p&gt;
+&lt;p&gt;The last thing to note is that the pickler combinator approach is definitely less efficient than processing binaries directly. Still, it is suitable for lots of applications where programming productivity is more important than ultimate efficiency.&lt;/p&gt;
+&lt;p&gt;Full pickler combinator source code is available &lt;a href="http://wagerlabs.com/erlang/pickle.erl"&gt;here&lt;/a&gt;.&lt;/p&gt;</content>
+ </entry>
+ 
+ <entry>
+   <title>Upgrading your Erlang cluster on Amazon EC2</title>
+   <link href="http://thinkerlang.com/2007/10/13/upgrading-your-erlang-cluster-on-amazon-ec2.html"/>
+   <updated>2007-10-13T00:00:00+01:00</updated>
+   <id>http://thinkerlang.com/2007/10/13/upgrading-your-erlang-cluster-on-amazon-ec2</id>
+   <content type="html">&lt;h1&gt;Upgrading your Erlang cluster on Amazon EC2&lt;/h1&gt;
+&lt;p class="meta"&gt;13 Oct 2007 &#8211; Tenerife&lt;/p&gt;
+&lt;p&gt;This article describes how to upgrade an Erlang cluster in one fell swoop once you have deployed it on Amazon EC2.&lt;/p&gt;
+&lt;h6&gt;Why not the Erlang/&lt;span class="caps"&gt;OTP&lt;/span&gt; upgrade procedure&lt;/h6&gt;
+&lt;p&gt;The standard and sanctioned way of deploying and upgrading Erlang applications is described in chapters 10-12 of the &lt;span class="caps"&gt;OTP&lt;/span&gt; Design Principles. Calling the upgrade procedure complex is an understatement.&lt;/p&gt;
+&lt;p&gt;Bowing to the &lt;span class="caps"&gt;OTP&lt;/span&gt; application packaging procedure, I wanted to have a way of upgrading applications with a &#8220;push of a button&#8221;. More precisely, I wanted to be able to type make:all() to rebuild my application and then type sync:all() to push updated modules to all nodes in my cluster. These nodes were previously set up as &#8220;diskless&#8221; Amazon EC2 nodes that fetch their code from the boot server since I didn&#8217;t want to reinvent the application packaging wheel.&lt;/p&gt;
+&lt;h6&gt;The sync application&lt;/h6&gt;
+&lt;p&gt;The principal application deployed in the cluster is the &#8220;sync&#8221; app. This is a gen_server set up according to chapter 2 of the &lt;span class="caps"&gt;OTP&lt;/span&gt; Design Principles. The gen_server handles requests to restart the Erlang node without shutting down and set environment variables, as well as requests upgrade the code by application or by process. Each sync gen_server joins the &#8216;&lt;span class="caps"&gt;SYNC&lt;/span&gt;&#8217; distributed named process group and this is what enables upgrade of the whole cluster in one fell swoop.&lt;/p&gt;
+&lt;p&gt;The sync server will invoke init:restart/0 to restart the node without shutting down upon receiving the &lt;span class="caps"&gt;RESTART&lt;/span&gt; request. This is incredibly handy since the restart sequence takes the contents of the Erlang VM to the trash can and then repeats the same steps taken by the Erlang VM when it is started from the command line. Which is to say that the VM loads the boot file from the boot server, parses the boot file, downloads the applications and runs them. If we have upgraded the code on the boot server then the Erlang VM will run new code after a restart.&lt;/p&gt;
+&lt;h6&gt;Upgrading by application or by process&lt;/h6&gt;
+&lt;p&gt;The above procedure is quite intrusive since all apps running in the Erlang VM are killed. Any Erlang node will normally be running a number of apps and you may want to upgrade just one or two of them. This is where the &#8220;upgrade by application&#8221; procedure comes in.&lt;/p&gt;
+&lt;p&gt;application:get_application/1 will give you the name of the application that a module belongs to. I build a unique list of applications that my changed modules belong to and then stop each application with application:stop/1, re-load changed modules and start the application with application:start/1.&lt;/p&gt;
+&lt;p&gt;The &#8220;upgrade process by process&#8221; procedure first grabs a list of all processes running in the same node as the sync gen_server. It does this by calling processes(). I check whether each process is running the code in one of the modified modules using erlang:check_process_code/2. Next, I suspend affected processes with erlang:suspend_process/1, re-load changed modules with erlang:resume_process/1 and I&#8217;m done.&lt;/p&gt;
+&lt;h6&gt;Reloading modules for fun and profit&lt;/h6&gt;
+&lt;p&gt;I&#8217;m still not absolutely sure if I got reloading of changed modules right but it looks like this:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+    load_modules([]) -&gt;
+        ok;
+
+    load_modules([Mod|T]) -&gt;
+        code:purge(Mod),
+        code:soft_purge(Mod),
+        {module, Mod} =  code:load_file(Mod),
+        load_modules(T).
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The need to call code:soft_purge/1 after code:purge/1 was determined empirically.&lt;/p&gt;
+&lt;p&gt;Everything I have described thus far is small bits of code.  The biggest chunk of code in the sync server figures out what modules were modified.&lt;/p&gt;
+&lt;h6&gt;What to reload: Inspecting module versions&lt;/h6&gt;
+&lt;p&gt;Remember my original intent to run make:all/0 followed by sync:all/0 to upgrade all nodes in the cluster at the same time? It&#8217;s only possible because 1) it&#8217;s possible to grab the module version from a module loaded into memory, 2) it&#8217;s possible to grab the same from a module on disk and, crucially, modules are not reloaded when make:all/0 is run.&lt;/p&gt;
+&lt;p&gt;The module version defaults to the MD5 checksum of the module if no -vsn(Vsn) attribute is specified. For the life of me I can&#8217;t remember where Module:module_info() is documented but this is what you use to grab the attributes of the module. It&#8217;s a property list so you can use proplists:get_value/2 to grab the vsn property and thus the module version.&lt;/p&gt;
+&lt;p&gt;To take advantage of local processing power, the &lt;span class="caps"&gt;API&lt;/span&gt; initiating the upgrade request does no work apart from inspecting the &lt;span class="caps"&gt;SYNC&lt;/span&gt; distributed named process group and telling each sync gen_server in the group to initiate the upgrade procedure. This means that each module loaded into the Erlang node hosting the sync server needs to be checked for changes.&lt;/p&gt;
+&lt;p&gt;Grabbing the version of the &lt;span class="caps"&gt;BEAM&lt;/span&gt; file holding the code for a given module is done using  beam_lib:version/1.  This is complicated by the fact that all of the Erlang EC2 nodes in the cluster download their code from the boot server.  Normally, beam_lib:version/1 takes either a module name, a file name or a binary.&lt;/p&gt;
+&lt;p&gt;I haven&#8217;t documented why I&#8217;m not using a module name or a file name in the boot server scenario but I must have found them not to work. I had to resort to fetching the module &lt;span class="caps"&gt;BEAM&lt;/span&gt; file from the boot server and inspecting that. Fortunately, traffic between EC2 instances is free and fast and the same applies to your &lt;span class="caps"&gt;LAN&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;To find out if a module is modified I grab the list of loaded modules with code:all_loaded/0 and inspect each module with code:is_loaded/1. I skip preloaded modules (see documentation for code:is_loaded) and use the path returned otherwise to instruct erl_prim_loader:get_file/1 to fetch the &lt;span class="caps"&gt;BEAM&lt;/span&gt; file. I then pass the file contents to beam_lib:version/1 and I have my disk version. After that it&#8217;s a simple matter of comparing the two versions and reloading the module if they differ.&lt;/p&gt;</content>
+ </entry>
+ 
+ <entry>
+   <title>Setting up Erlang on Amazon EC2</title>
+   <link href="http://thinkerlang.com/2007/10/12/setting-up-erlang-on-amazon-ec2.html"/>
+   <updated>2007-10-12T00:00:00+01:00</updated>
+   <id>http://thinkerlang.com/2007/10/12/setting-up-erlang-on-amazon-ec2</id>
+   <content type="html">&lt;h1&gt;Setting up Erlang on Amazon EC2&lt;/h1&gt;
+&lt;p class="meta"&gt;12 Oct 2007 &#8211; Tenerife&lt;/p&gt;
+&lt;p&gt;This article describes a project that I recently completed for a startup company. The code is proprietary and cannot be published but the company has graciously allowed me to write about my experience.&lt;/p&gt;
+&lt;h6&gt;Why Erlang and Amazon EC2?&lt;/h6&gt;
+&lt;p&gt;There&#8217;s no need to introduce the Amazon Elastic Computing Cloud (EC2) since everyone knows about it by now. In essence, EC2 allows you to rent computing power by the hour. That hour is just $0.10 which works out to about $70 per month. The virtual server that Amazon provides is called an instance. The important bit is that you are completely in control of the operating system that the instance runs and the software installed on it.&lt;/p&gt;
+&lt;p&gt;Amazon lets you run scores of instances at any given time. Major benefits are realized when EC2 instances work as a cluster, though. Think of GoogleBot, a page crawler that indexes your site&#8217;s content. Such a crawler would surely benefit from being run on as many machines as possible, all indexing different pages and working in parallel. Once the crawler is finished, you can shut the machines down until next time.&lt;/p&gt;
+&lt;p&gt;Amazon does not provide tools to cluster your instances or replicate data among them. This is a task that Erlang copes with extremely well so Amazon EC2 and Erlang are a match made in haven!&lt;/p&gt;
+&lt;h6&gt;How to set up Erlang on Amazon EC2&lt;/h6&gt;
+&lt;p&gt;How do you start with Erlang and EC2? You need to build a Linux image that runs Erlang upon startup and automatically starts a new Erlang node. This node should then contact an existing Erlang node to join your Erlang cluster.&lt;/p&gt;
+&lt;p&gt;&lt;span class="caps"&gt;CEAN&lt;/span&gt; is a great way to set up the necessary components of Erlang on your new instance. Set up &lt;span class="caps"&gt;CEAN&lt;/span&gt; and have it install just the Erlang applications that you need. Create a script that will run Erlang when Linux starts. Make sure to adjust $&lt;span class="caps"&gt;HOME&lt;/span&gt; in this script and set $&lt;span class="caps"&gt;PROGNAME&lt;/span&gt; to start.sh in cean/start.sh. Use cean:install/1 to pull in the inets and sasl packages. You will likely need the compiler package as well.&lt;/p&gt;
+&lt;p&gt;The EC2 &lt;span class="caps"&gt;API&lt;/span&gt; lets you pass arguments to your newly started instance and these arguments can be retrieved by your Erlang code. One of the arguments you absolutely must pass is the name of an existing instance that is already part of your Erlang cluster. By connecting to Erlang running on the existing instance your new node will automatically become aware of the rest of the cluster.&lt;/p&gt;
+&lt;h6&gt;Upgrading your Erlang code&lt;/h6&gt;
+&lt;p&gt;The software available to your instance is normally part of your instance image. It&#8217;s quite cumbersome to rebuild an image every time you deploy a software update, though. It&#8217;s much better to push software updates to your instances whenever an update is available. Note that these updates need to be pushed to every instance in your Erlang cluster and reloaded every time an instance restarts. Fortunately, Erlang makes all this easy.&lt;/p&gt;
+&lt;p&gt;The boot server facility is probably one of the least documented and appreciated pieces of the Erlang infrastructure but one that comes in most handy here. A boot server enables Erlang nodes to fetch their configuration files and code from a central location, over the network. This neatly sidesteps the issue of pushing upgrades to your Erlang cluster. All you need to do is restart your instances one by one and have them fetch new software.&lt;/p&gt;
+&lt;p&gt;Note that you don&#8217;t need to physically restart the EC2 instances themselves. All you need to do is tell our Erlang nodes to reboot without exiting the VM. This is done using init:restart/0.&lt;/p&gt;
+&lt;h6&gt;The boot server&lt;/h6&gt;
+&lt;p&gt;The Erlang boot server lives in the erlbootserver module and keeps a list of slave hosts authorized to connect to it. You can use man erlbootserver to read up on the boot server &lt;span class="caps"&gt;API&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;The boot server will not have any hosts authorized to connect to it upon startup. A new EC2 instance that you are starting up needs to be added to the boot server slave list &lt;span class="caps"&gt;BEFORE&lt;/span&gt; you attempt to start an new Erlang node. This is easily accomplished by starting a &#8220;controller&#8221; node that will issue an &lt;span class="caps"&gt;RPC&lt;/span&gt; call to the boot server and add its own IP address to the boot server&#8217;s slave list.&lt;/p&gt;
+&lt;p&gt;Once the controller node adds the internal Amazon instance address to the boot server authorized slave list, it can start the worker node and safely exit. Now that the boot server knows about the new slave it will allow connection and the worker node will successfully fetch its software from the boot server.&lt;/p&gt;
+&lt;p&gt;The boot server and all the slave nodes must share the same Erlang cookie. The cookie is stored in ~/.erlang.cookie. All nodes must also share the same &lt;span class="caps"&gt;OTP&lt;/span&gt; version.&lt;/p&gt;
+&lt;p&gt;So long as all the nodes are part of the same EC2 security group we should be reasonably secure that no node outside of our group will be able to make use of our boot server. This security is also aided by the requirement that all Erlang nodes in the cluster must use the same cookie to talk to each other. It&#8217;s convenient to assign one of the existing instances as a boot server since it will then be within the EC2 security group.&lt;/p&gt;
+&lt;h6&gt;Setting up&lt;/h6&gt;
+&lt;p&gt;I use a script like this to start slave nodes. The path specified is on the boot server.&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+#!/bin/sh
+
+COOKIE=RRFJBVGLSOUPFLWVEYJP
+BOOT=/Users/joelr/work/erlang/sync/ebin/diskless
+HOST=192.168.1.33
+ID=diskless
+
+erl -name $ID -boot $BOOT -setcookie $COOKIE -id $ID -loader inet -hosts $HOST -mode embedded ${1+"$@"}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You will also need to create a boot file which must be created with full paths inside (local option to systools:make_script/2).&lt;/p&gt;
+&lt;p&gt;To build a boot file I use these two lines of Erlang:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+code:add_path("./ebin"). 
+systools:make_script("diskless", [local, {outdir, "./ebin"}]).
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;script files is made from rel and app files. boot files are made from script files.&lt;/p&gt;
+&lt;p&gt;Note that diskless is the same boot file name that is used in the shell script above. I&#8217;m assuming that it lives in ./ebin and so I add it to the code path for make_script to find it.&lt;/p&gt;
+&lt;p&gt;If everything is done correctly your new EC2 instances will now fetch their code from the boot sever upon startup and whenever you restart Erlang nodes running on them with init:restart/0.&lt;/p&gt;
+&lt;p&gt;I may not always be convenient to pull updates from the boot server. I will describe a push facility that I implemented in another post.&lt;/p&gt;</content>
+ </entry>
+ 
+ 
+</feed>

@@ -77,4 +77,3 @@ If everything is done correctly your new EC2 instances will now fetch their code
 
 I may not always be convenient to pull updates from the boot server. I will describe a push facility that I implemented in another post.
 
-"Discuss this article":http://groups.google.com/group/thinkerlang/browse_thread/thread/abaff955f10f8d96

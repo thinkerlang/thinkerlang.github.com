@@ -1,0 +1,150 @@
+---
+layout: post
+title: Optimizing Erlang - A death match of arrays and tuples
+---
+
+h3. {{ page.title }}
+
+p(meta). 25 August 2008 - Tenerife
+
+This is the first in my series of posts on optimizing Erlang. I plan to tackle optimizing Mnesia, profiling and scalability.
+
+"You need to use arrays of up to 10,000 elements.":1 Erlang offers you tuples as well as fixed-size and extensible pseudo-arrays. What is the fastest option?
+
+Let us start the death match by pitting arrays against tuples in a death match. Trees were an option before the array module became available, so lets throw in trees just for laughs.
+
+[1]http://groups.google.com/group/erlang-questions/browse_thread/thread/d171d2c4e997c29d
+
+I'm running Mac OSX Leopard 10.5.4 on a Mac Pro 2x2.8Ghz Quad-Core Intel Xeon with 14Gb 800Mhz DDR2 FB-DIMM.
+
+<pre class="terminal"><code>
+Erlang (BEAM) emulator version 5.6.3 [source] [64-bit] [smp:8] [async-threads:0] [kernel-poll:false]
+
+27> arr:test().
+Fixed-size array: get:     2921µs, set:     5902µs
+Extensible array: get:     3336µs, set:     8144µs
+Tuple:            get:      632µs, set:   107467µs
+Tree:             get:     4321µs, set:    45256µs
+ok
+
+30> arr:test(100000).
+Fixed-size array: get:    35314µs, set:    74653µs
+Extensible array: get:    35349µs, set:    74059µs
+Tuple:            get:     6411µs, set: 24304490µs
+Tree:             get:    53681µs, set:   632795µs
+ok
+</code></pre>
+
+Note that _timer:tc_ returns time in microseconds. I ran each test 3 times and the results above are from the third iteration.
+
+Trees in Erlang (gb_trees) are built on top of regular tuples and so is the array module. The array module is much more efficient about using tuples than a regular tree, though, and this is the reason why it's so much faster.
+
+The tuple test pre-allocates a tuple of 10k or 100k elements. There's no destructive assignment in Erlang and so the same large tuple needs to be allocated and discarded on every set operation. It's very inefficient to allocate and discard a large tuple on every set operation, thus naive tuple set is very slow.
+
+The array module uses an efficient tree-like internal representation:
+
+{% highlight erlang %}
+
+%% A tree is either a leaf, with LEAFSIZE elements (the "base"), an
+%% internal node with LEAFSIZE+1 elements, or an unexpanded tree,
+%% represented by a single integer: the number of elements that may be
+%% stored in the tree when it is expanded. The last element of an
+%% internal node caches the number of elements that may be stored in
+%% each of its subtrees.
+%%
+%% Note that to update an entry in a tree of height h = log[b] n, the
+%% total number of written words is (b+1)+(h-1)*(b+2), since tuples use
+%% a header word on the heap. 4 is the optimal base for minimizing the
+%% number of words written, but causes higher trees, which takes time.
+%% The best compromise between speed and memory usage seems to lie
+%% around 8-10. Measurements indicate that the optimum base for speed is
+%% 24 - above that, it gets slower again due to the high memory usage.
+%% Base 10 is a good choice, giving 2/3 of the possible speedup from
+%% base 4, but only using 1/3 more memory. (Base 24 uses 65% more memory
+%% per write than base 10, but the speedup is only 21%.)
+
+{% endhighlight %}
+
+It's far more efficient to allocate small tuples on every set and this is why the array module wins hands down. 
+
+Use the code below to replicate my results on your hardware.
+
+{% highlight erlang %}
+
+-module(arr).
+
+-compile([export_all]).
+
+data1(N) ->
+    %% size implies fixed-size array 
+    %% but lets be explicit
+    array:new([{size, N}, {default, 0}, {fixed, true}]).
+
+data2(N) ->
+    %% extensible array
+    array:new([{size, N}, {default, -1}, {fixed, false}]).
+
+data3(N) ->
+    erlang:make_tuple(N, 0).
+
+data4(_) ->
+    gb_trees:empty().
+
+array_set(Array, I, Value) ->
+    %% array indexing starts at 0
+    array:set(I - 1, Value, Array).
+
+tuple_set(Tuple, I, Value) ->
+    %% tuple indexing starts at 1
+    setelement(I, Tuple, Value).
+
+tree_set(Tree, I, Value) ->
+    gb_trees:enter(I, Value, Tree).
+
+array_get(Array, I) ->
+    array:get(I - 1, Array).
+
+tuple_get(Tuple, I) ->
+    element(I, Tuple).
+
+tree_get(Tree, I) ->
+    gb_trees:get(I, Tree).
+
+get(_, _, 0) ->
+    ok;
+
+get(Fun, Data, N) ->
+    Fun(Data, N),
+    get(Fun, Data, N - 1).
+
+set(_, Data, 0) ->
+    Data;
+
+set(Fun, Data, N) ->
+    Data1 = Fun(Data, N, N),
+    set(Fun, Data1, N - 1).
+
+test() ->
+    test(10000).
+
+test(N) ->
+    %% fixed-size array
+    {S1, D1} = timer:tc(arr, set, [{arr, array_set}, data1(N), N]),
+    {G1, _} = timer:tc(arr, get, [{arr, array_get}, D1, N]),
+    %% extensible array
+    {S2, D2} = timer:tc(arr, set, [{arr, array_set}, data2(N), N]),
+    {G2, _} = timer:tc(arr, get, [{arr, array_get}, D2, N]),
+    %% tuple
+    {S3, D3} = timer:tc(arr, set, [{arr, tuple_set}, data3(N), N]),
+    {G3, _} = timer:tc(arr, get, [{arr, tuple_get}, D3, N]),
+    %% gb_trees
+    {S4, D4} = timer:tc(arr, set, [{arr, tree_set}, data4(N), N]),
+    {G4, _} = timer:tc(arr, get, [{arr, tree_get}, D4, N]),
+    %% results
+    io:format("Fixed-size array: get: ~8wµs, set: ~8wµs~n", [G1 , S1]),
+    io:format("Extensible array: get: ~8wµs, set: ~8wµs~n", [G2 , S2]),
+    io:format("Tuple:            get: ~8wµs, set: ~8wµs~n", [G3 , S3]),
+    io:format("Tree:             get: ~8wµs, set: ~8wµs~n", [G4 , S4]),
+    ok.
+
+{% endhighlight %}    

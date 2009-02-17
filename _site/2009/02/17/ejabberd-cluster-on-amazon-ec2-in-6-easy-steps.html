@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
 <head>
    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-   <title>{{ page.title }}</title>
+   <title>How to set up an ejabberd cluster on Amazon EC2 in 6 easy steps</title>
    <meta name="author" content="Joel Reymont" />
    <link href="http://feeds.feedburner.com/thinkerlang" rel="alternate" title="The Erlang Journal" type="application/atom+xml" />
 
@@ -22,7 +22,36 @@
     <a class="extra" href="/">home</a>
   </div>
   
-  {{ content }}
+  <div id="post">
+<h3>How to set up an ejabberd cluster on Amazon EC2 in 6 easy steps</h3>
+<p class="meta">17 Feb 2009 &#8211; Tenerife</p>
+<p>1) Edit /etc/init.d/ejabberd</p>
+<p>node=`hostname -f`</p>
+<p>`hostname -s` does not work here.</p>
+<p>2) Edit /etc/init.d/ejabberd</p>
+<p>Use &#8216;-name ejabberd@$node&#8217; instead of &#8216;-sname ejabberd&#8217; everywhere. This applies to &#8216;-sname ejabberdctl&#8217; too.</p>
+<p>3) Edit /etc/init.d/ejabberd add mnesia_extra_db_nodes</p>
+<p>See the start() function, find the line that says</p>
+<p>-detached&quot;</p>
+<p>and add the following right above</p>
+<p>-mnesia extra_db_nodes \&#8220;[&#8216;<hostname -f of a running node>&#8217;]\&#8221; \</p>
+<p>4) Remove the Mnesia db tables</p>
+<p>cd /var/lib/ejabberd/spool &amp;&amp; rm -f *</p>
+<p>5) Edit /etc/ejabberd/ejabberdctl.cfg</p>
+<p>Make sure you have this at the very end</p>
+<p>ERLANG_NODE=ejabberd@`hostname -f`</p>
+<p>6) Make sure your .erlang.cookie files are the same on all nodes</p>
+<p>This will work with MySQL. Enjoy!</p>
+</div>
+
+<div id="disqus_thread"></div><script type="text/javascript" src="http://disqus.com/forums/thinkerlang/embed.js"></script><noscript><a href="http://thinkerlang.disqus.com/?url=ref">View the discussion thread.</a></noscript><a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+  </ul>
+</div>
   
   <div class="footer">
     <div class="contact">
