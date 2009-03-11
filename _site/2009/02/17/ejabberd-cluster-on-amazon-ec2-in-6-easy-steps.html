@@ -32,36 +32,22 @@
 <p>does not work here.</p>
 <p>2) Edit /etc/init.d/ejabberd</p>
 <p>Use</p>
-<pre class="terminal"><code>
--name ejabberd@$node
-</code></pre>
+<pre class="terminal"><code>-name ejabberd@$node</code></pre>
 <p>instead of</p>
-<pre class="terminal"><code>
--sname ejabberd
-</code></pre>
+<pre class="terminal"><code>-sname ejabberd</code></pre>
 <p>everywhere. This applies to</p>
-<pre class="terminal"><code>
--sname ejabberdctl
-</code></pre>
+<pre class="terminal"><code>-sname ejabberdctl</code></pre>
 <p>too.</p>
 <p>3) Edit /etc/init.d/ejabberd add mnesia_extra_db_nodes</p>
 <p>See the start() function, find the line that says</p>
-<pre class="terminal"><code>
--detached"
-</code></pre>
+<pre class="terminal"><code>-detached"</code></pre>
 <p>and add the following right above</p>
-<pre class="terminal"><code>
--mnesia extra_db_nodes \"[' ... hostname -f of a running node ... ']\" \
-</code></pre>
+<pre class="terminal"><code>-mnesia extra_db_nodes \"[' ... hostname -f of a running node ... ']\" \</code></pre>
 <p>4) Remove the Mnesia db tables</p>
-<pre class="terminal"><code>
-cd /var/lib/ejabberd/spool &amp;&amp; rm -f *
-</code></pre>
+<pre class="terminal"><code>cd /var/lib/ejabberd/spool &amp;&amp; rm -f *</code></pre>
 <p>5) Edit /etc/ejabberd/ejabberdctl.cfg</p>
 <p>Make sure you have this at the very end</p>
-<pre class="terminal"><code>
-ERLANG_NODE=ejabberd@`hostname -f`
-</code></pre>
+<pre class="terminal"><code>ERLANG_NODE=ejabberd@`hostname -f`</code></pre>
 <p>6) Make sure your .erlang.cookie files are the same on all nodes</p>
 <p>This will work with MySQL. Enjoy!</p>
 </div>

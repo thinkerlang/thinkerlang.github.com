@@ -1,0 +1,315 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Haskell vs Erlang, Reloaded</title>
+   <meta name="author" content="Joel Reymont" />
+   <link href="http://feeds.feedburner.com/thinkerlang" rel="alternate" title="The Erlang Journal" type="application/atom+xml" />
+
+   <!-- CodeRay syntax highlighting CSS -->
+   <link rel="stylesheet" href="/css/coderay.css" type="text/css" />
+
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="/css/screen.css" type="text/css" media="screen, projection" />
+</head>
+<body>
+
+<div class="site">
+  <div class="title">
+    <a href="/">The Erlang Journal</a>
+    <a class="extra" href="/">home</a>
+  </div>
+  
+  <div id="post">
+<h1 id='haskell_vs_erlang_reloaded'>Haskell vs Erlang, Reloaded</h1>
+<p class='meta'>01 Jan 2006 - Tenerife</p>
+<p>On Dec 29, 2005, at 8:22 AM, <a href='http://research.microsoft.com/Users/simonpj/'>Simon Peyton-Jones</a> wrote in response to me:</p>
+
+<blockquote>
+<blockquote>
+<p>Using <a href='http://www.haskell.org'>Haskell</a> for this networking app forced me to focus on all the issues but the business logic. Type constraints, binary IO and serialization, minimizing memory use and fighting laziness, timers, tweaking concurrency and setting up message channels, you name it.</p>
+</blockquote>
+
+<p>That&#8217;s a disappointing result. Mostly I think Haskell lets you precisely focus on the logic of your program, because lots else is taken care of behind the scenes. You found precisely the reverse. It&#8217;d be interesting to understand which of these issues are</p>
+
+<ul>
+<li>language issues</li>
+
+<li>library issues</li>
+
+<li>compiler/run-time issues My (ill-informed) hypothesis is that better libraries would have solved much of your problems. A good example is a fast, generic serialization library. If you felt able (sometime) to distill your experience under headings like the above, only more concretely and precisely, I think it might help to motivate Haskellers to start solving them.</li>
+</ul>
+</blockquote>
+
+<p>Please browse through the <a href='http://www.nabble.com/Project-postmortem-t570675.html'>original Haskell Postmortem thread</a> for some background info. Then read this post and head to the thread describing my <a href='http://www.erlang.org/ml-archive/erlang-questions/200601/msg00003.html'>Erlang rewrite experience</a>.</p>
+
+<p>Other threads relevant to my experience, including crashes and <a href='http://www.haskell.org/ghc'>Glasgow Haskell Compiler (GHC)</a> runtime issues included at the bottom of this post.</p>
+
+<p>&#8212; 1. Goals &#8212;</p>
+
+<p>The goal of my project was to be able to thoroughly test a poker server using poker bots. Each poker bot was to to excercise different parts of the server by talking the poker protocol consisting of 150+ binary messages. The poker server itself is written in C++ and runs on Windows.</p>
+
+<p>Easy scripting was an essential requirement since customer&#8217;s QA techs were not programmers but needed to be able to write the bots. Another key requirement was to be able to launch at least 4,000 poker bots from a single machine.</p>
+
+<p>This app is all about binary IO, thousands of threads/processes and easy serialization. All I ever wanted to do was send packets back and forth, analyze them and have thousands of poker bots running on my machine doing same. Lofty but simple goal :-). Little did I know!</p>
+
+<p>&#8212; 2. Summary &#8212;</p>
+
+<p>I spent a few months writing a poker server in Erlang but fell in love with Haskell after reading <a href='http://research.microsoft.com/Users/simonpj/Papers/financial-contracts/contracts-icfp.htm'>Simon&#8217;s Composing Financial Contracts</a> paper. I thought I would do this project in Haskell since my customer expressed a concern about QA techs having to learn Erlang and the Haskell syntax looked clean and elegant.</p>
+
+<p>Overall, I spent 10-11 weeks on the Haskell version of the project. The end result did not turn out as elegant as I wanted it to be and wasn&#8217;t easy on the QA techs. They told me, in retrospect, that the Erlang code was easier to understand and they preferred it.</p>
+
+<p>It took me less than 1 week to rewrite the app in Erlang. It&#8217;s the end of that week and I&#8217;m already way past the state of the Haskell version. The Erlang code, at 3900 lines of code (LOC) including examples, is about 50% of the Haskell code. </p>
+
+<p>It&#8217;s far easier to rewrite the code when you know the application, of course, but this rewrite did not involve a lot of domain knowledge. I also <a href='http://wagerlabs.com/erlang/pickle.erl'>translated to Erlang</a> the original code in the <a href='http://research.microsoft.com/~akenn/fun/picklercombinators.pdf'>Pickler Combinators</a> paper.</p>
+
+<p>&#8212; 3. Issues &#8212;</p>
+
+<p>I spent the first few weeks of the project coding the packets using <span>Word8</span> serialization. This proved to be naive as the app ate HUGE amounts of memory. I didn&#8217;t concern myself with applying strictness at that point. </p>
+
+<p>I ran into a dead end on Windows for some reason. The app seemed to hang frequently when running hundreds of threads on Windows and did it in ways that were distinctly different from Mac OSX. The customer had FreeBSD and agreed to run my app on it.</p>
+
+<p>Running on FreeBSD did not improve things and that&#8217;s when I started looking deeply into strictness optimizations, etc. After 10-11 weeks with this app I was still nowhere near my goals and I had no guarantee that all my issues would be resolved this this tweak or that.</p>
+
+<p>&#8212; 3.1. Runtime issues &#8212;</p>
+
+<p>What threw me off almost right away is the large number of GHC runtime issues that I stumbled upon. I was trying to do serialization and heavy concurrency which I learned to take for granted with Erlang but it turned out that this area of GHC has not been exercised enough. </p>
+
+<p>&#8212; 3.2 Records &#8212;</p>
+
+<p>Haskell is supposed to be about declarative programming. Haskell programs should <a href='http://www.cs.chalmers.se/ComputingScience/Research/Functional/Fudgets/haskell-vs-ada-abstract.html'>look like specifications</a>. Haskell is not supposed to be verbose and <a href='http://www.paulgraham.com/power.html'>Succinctness is Power</a>, according to <a href='http://www.paulgraham.com/'>Paul Graham</a>.</p>
+
+<p>One area where this breaks down quickly is records. </p>
+
+<p>Compare Erlang</p>
+<notextile />
+<p>with Haskell</p>
+<notextile />
+<p>The Haskell version requires twice as much lines of code just to initialize the structures with meaningful defaults. I have 164 record in the program, some of which are rather large. Renaming and using the Haskell accessor functions gets rather tedious after a while and there&#8217;s nothing elegant in having to explain to the customer how xyFoo is really different from zFoo when they really mean the same thing. This might seem like no big deal but, again, I have a lot of records. </p>
+
+<p>I tried creating classes for each &#8220;kind&#8221; of field and I tried using HList to put these fields together into records. This seems like 1) a terrible hack compared to the Erlang version and 2) not very efficient. I did not get to measuring efficiency with a profiler but I did have GHC run out of memory trying to compile my HList code. SPJ fixed this but I decided not to take it further.</p>
+
+<p>&#8212; 3.2 Static typing &#8212;</p>
+
+<p>The records issue is a language issue just like static typing working against me with events. Part of the reason why the Erlang code is 1/2 the size of the Haskell code is that Erlang is dynamically typed. I just post an event of any type I want. I basically post tuples of various sizes but Haskell requires me to either use Dynamic or define the events in advance. </p>
+
+<p>Yes, I did retrofit the code with data Event a = Foo | Bar | Baz a late in the development cycle but it was a major pain in the rear, specially when it came to my &#8220;bot monad&#8221;. </p>
+
+<p>Speaking of monads&#8230; There&#8217;s not a lot of beauty in this:</p>
+<notextile />
+<p>and then this:</p>
+<notextile />
+<p>In fact, I still don&#8217;t have anywhere near in-depth knowledge of how to write my own monad.</p>
+
+<p>Erlang is free of side effects (built-in function aside) just like Haskell but pattern-matching becomes far easier and the code becomes much smaller when you don&#8217;t have to deal with static typing. To wit:</p>
+<notextile />
+<p>&#8212; 3.3 Concurrency &#8212;</p>
+
+<p>Concurrency in Haskell deserves a praise, specially when used together with <a href='http://www.haskell.org/~simonmar/papers/stm.pdf'>STM</a>. Threads are lightweight (1024 bytes on the heap) and easy to launch and STM is a beautiful thing. Nothing beats being able to just send yourself a message, though. This is something that you can easily do with Erlang.</p>
+
+<p>Erlang processes (327 bytes starting up, including heap) come with a message queue and you retrieve messages with &#8220;selective receive&#8221; that uses the same pattern-matching facilities as everything else.</p>
+<notextile><div class='highlight'><pre>    <span class='c'>%%% Dispatch event</span>
+
+    <span class='n'>run</span><span class='p'>(_,</span> <span class='p'>{</span><span class='n'>keep_going</span><span class='p'>,</span> <span class='nv'>Bot</span><span class='p'>})</span> 
+      <span class='k'>when</span> <span class='nb'>is_record</span><span class='p'>(</span><span class='nv'>Bot</span><span class='p'>,</span> <span class='n'>bot</span><span class='p'>)</span> <span class='o'>-&gt;</span>
+        <span class='k'>receive</span>
+    	<span class='p'>{</span><span class='n'>tcp</span><span class='p'>,</span> <span class='p'>_,</span> <span class='o'>&lt;&lt;</span><span class='nv'>Packet</span><span class='o'>/</span><span class='n'>binary</span><span class='o'>&gt;&gt;</span><span class='p'>}</span> <span class='o'>-&gt;</span>
+    	    <span class='nv'>Event</span> <span class='o'>=</span> <span class='n'>unpickle</span><span class='p'>(</span><span class='nv'>Bot</span><span class='p'>,</span> <span class='nv'>Packet</span><span class='p'>),</span>
+    	    <span class='n'>run</span><span class='p'>(</span><span class='nv'>Bot</span><span class='p'>,</span> <span class='n'>handle</span><span class='p'>(</span><span class='nv'>Bot</span><span class='p'>,</span> <span class='nv'>Event</span><span class='p'>));</span>
+    	<span class='p'>{</span><span class='n'>script</span><span class='p'>,</span> <span class='nv'>Event</span><span class='p'>}</span> <span class='o'>-&gt;</span>
+    	    <span class='k'>case</span> <span class='nv'>Event</span> <span class='k'>of</span>
+    		<span class='p'>{</span><span class='n'>tables</span><span class='p'>,</span> <span class='p'>[</span><span class='nv'>H</span><span class='p'>|</span><span class='nv'>T</span><span class='p'>]}</span> <span class='o'>-&gt;</span>
+    		    <span class='nb'>trace</span><span class='p'>(</span><span class='nv'>Bot</span><span class='p'>,</span> <span class='mi'>95</span><span class='p'>,</span> <span class='s'>&quot;Event: {tables, [</span><span class='si'>~w</span><span class='s'>, </span><span class='si'>~w</span><span class='s'> more]}&quot;</span><span class='p'>,</span>
+    			  <span class='p'>[</span><span class='nv'>H</span><span class='p'>,</span> <span class='nb'>length</span><span class='p'>(</span><span class='nv'>T</span><span class='p'>)]);</span>
+    		<span class='p'>_</span> <span class='o'>-&gt;</span>
+    		    <span class='nb'>trace</span><span class='p'>(</span><span class='nv'>Bot</span><span class='p'>,</span> <span class='mi'>95</span><span class='p'>,</span> <span class='s'>&quot;Event: </span><span class='si'>~p</span><span class='s'>&quot;</span><span class='p'>,</span> <span class='p'>[</span><span class='nv'>Event</span><span class='p'>])</span>
+    	    <span class='k'>end</span><span class='p'>,</span>
+    	    <span class='n'>run</span><span class='p'>(</span><span class='nv'>Bot</span><span class='p'>,</span> <span class='n'>handle</span><span class='p'>(</span><span class='nv'>Bot</span><span class='p'>,</span> <span class='nv'>Event</span><span class='p'>));</span>
+    	<span class='nv'>Any</span> <span class='o'>-&gt;</span>
+    	    <span class='n'>run</span><span class='p'>(</span><span class='nv'>Bot</span><span class='p'>,</span> <span class='n'>handle</span><span class='p'>(</span><span class='nv'>Bot</span><span class='p'>,</span> <span class='nv'>Any</span><span class='p'>))</span>
+        <span class='k'>end</span><span class='p'>;</span>
+</pre></div></notextile>
+<p>This code just works. It collects network messages, events, timer events, you name it. Posting an event is also easy.</p>
+<notextile><div class='highlight'><pre>    <span class='n'>post</span><span class='p'>(</span><span class='nv'>Bot</span><span class='p'>,</span> <span class='nv'>Event</span><span class='p'>)</span> <span class='o'>-&gt;</span>
+        <span class='n'>self</span><span class='p'>()</span> <span class='o'>!</span> <span class='p'>{</span><span class='n'>script</span><span class='p'>,</span> <span class='nv'>Event</span><span class='p'>}.</span>
+</pre></div></notextile>
+<p>I tried implementing this scheme using <a href='http://www.haskell.org/ghc/docs/latest/html/libraries/stm/Control-Concurrent-STM-TChan.html'>STM.TChan</a> but failed. The best example of this is my logger. The most natural way to implement logging seemed to be by reading from a TChan in a loop and printing out the messages. I launched several thousand threads, all logging to the single TChan. Bummer, I think I ran out of memory.</p>
+
+<p>Follow-up discussions on Haskell-Cafe narrowed the issue down to the logger thread not being able to keep up. I took this for granted and implemented a single-slot logger. This worked and reduced memory consumption drastically but I believe introduced locking delays in other places since threads could only log sequentially.</p>
+
+<p>Erlang provides the <span>disk<em>log module]<a href='http://www.erlang.se/doc/doc-5.4.12/lib/kernel-2.10.12/doc/html/disk_log.html'>14</a> that logs to disk anything sent to the logger process. The logger can be located anywhere on a network of Erlang nodes (physical machines or VMs) but I&#8217;m using a local logger without any major problems so far.</em></span></p>
+
+<p>Could the difference be due to differences in the scheduler implementation?</p>
+
+<p>The Erlang version of my code has a separate socket reader process that sends incoming packets as messages to the process that opened the socket. This is the standard way of doing things in Erlang. Network packets get collected in the same message queue as everything else. It&#8217;s the natural way and the right way.</p>
+
+<p>I tried to do the same with Haskell by attaching a TChan mailbox to my threads. Big bummer, I quickly ran out of memory. The socket readers were quick to post messages to the TChan but the threads reading from it apparently weren&#8217;t quick enough. This is my unscientific take on it.</p>
+
+<p>Moving to single-slot mailboxes did wonders to lower memory consumption but introduced other problems since I could no longer send a message to myself from the poker bot thread. The socket reader would stick a packet into a TMVar and then the poker bot code would try to stick one in and block. This caused a deadlock since the bot code would never finish to let the thread loop empty the TMVar.</p>
+
+<p>I ended up creating a bunch of single-slot mailboxes, one for the socket reader, one for messages posted from the poker bot code, one for outside messages like &#8220;quit now&#8221;, etc. Thanks to STM the code to read any available messages was elegant and probably efficient too but overall the approach looks hackish.</p>
+<notextile><div class='highlight'><pre>        <span class='n'>fetch</span> <span class='ow'>::</span> <span class='p'>(</span><span class='kt'>ScriptState</span> <span class='n'>b</span><span class='p'>)</span> <span class='p'>(</span><span class='kt'>Integer</span><span class='p'>,</span> <span class='kt'>Integer</span><span class='p'>,</span> <span class='kt'>Integer</span><span class='p'>,</span> <span class='p'>(</span><span class='kt'>Event</span><span class='p'>))</span>
+        <span class='n'>fetch</span> <span class='ow'>=</span> 
+            <span class='kr'>do</span> <span class='n'>w</span> <span class='ow'>&lt;-</span> <span class='n'>get</span>
+               <span class='n'>liftIO</span> <span class='o'>$</span> <span class='n'>atomically</span> <span class='o'>$</span> 
+                      <span class='n'>readQ</span> <span class='p'>(</span><span class='n'>killbox</span> <span class='n'>w</span><span class='p'>)</span> <span class='p'>`</span><span class='n'>orElse</span><span class='p'>`</span>
+                      <span class='n'>readQ</span> <span class='p'>(</span><span class='n'>scriptbox</span> <span class='n'>w</span><span class='p'>)</span> <span class='p'>`</span><span class='n'>orElse</span><span class='p'>`</span>
+                      <span class='n'>readQ</span> <span class='p'>(</span><span class='n'>timerbox</span> <span class='n'>w</span><span class='p'>)</span> <span class='p'>`</span><span class='n'>orElse</span><span class='p'>`</span>
+                      <span class='n'>readQ</span> <span class='p'>(</span><span class='n'>netbox</span> <span class='n'>w</span><span class='p'>)</span>
+</pre></div></notextile>
+<p>I had to replace this code with some other hack to be able to run retainer profiling since it does not work with STM.</p>
+
+<p>I also had issues with asynchronous exceptions (killThread blocking?), including crashes with a threaded runtime.</p>
+
+<p>&#8212; 4. Libraries &#8212;</p>
+
+<p>&#8212; 4.1 Serialization &#8212;</p>
+
+<p>This horse has been beaten to death by now. I would just say that thinking of Haskell binary IO and serialization makes me cringe. Binary IO is so damn easy and efficient with Erlang that I look forward to it. Specially after I wrote the Erlang version of the Pickler Combinators. Please refer to Bit Syntax for more information. I would give an arm and a leg to stick to binary IO in Erlang rather than process XML or other textual messages, just because it&#8217;s so easy.</p>
+
+<p>With Haskell I tried reading network packets as a list of bytes which was elegant but not very efficient. I also tried serialization base don Ptr Word8 and IOUArray. I don&#8217;t think there&#8217;s a lot of difference between the two efficiency-wise. allocaBytes is implemented on top of byte arrays, for example.</p>
+<notextile><div class='highlight'><pre>    <span class='n'>allocaBytes</span> <span class='ow'>::</span> <span class='kt'>Int</span> <span class='ow'>-&gt;</span> <span class='p'>(</span><span class='kt'>Ptr</span> <span class='n'>a</span> <span class='ow'>-&gt;</span> <span class='kt'>IO</span> <span class='n'>b</span><span class='p'>)</span> <span class='ow'>-&gt;</span> <span class='kt'>IO</span> <span class='n'>b</span>
+    <span class='n'>allocaBytes</span> <span class='p'>(</span><span class='kt'>I</span><span class='o'>#</span> <span class='n'>size</span><span class='p'>)</span> <span class='n'>action</span> <span class='ow'>=</span> <span class='kt'>IO</span> <span class='o'>$</span> <span class='nf'>\</span> <span class='n'>s</span> <span class='ow'>-&gt;</span>
+         <span class='kr'>case</span> <span class='n'>newPinnedByteArray</span><span class='o'>#</span> <span class='n'>size</span> <span class='n'>s</span>      <span class='kr'>of</span> <span class='p'>{</span> <span class='p'>(</span><span class='o'>#</span> <span class='n'>s</span><span class='p'>,</span> <span class='n'>mbarr</span><span class='o'>#</span> <span class='o'>#</span><span class='p'>)</span> <span class='ow'>-&gt;</span>
+         <span class='kr'>case</span> <span class='n'>unsafeFreezeByteArray</span><span class='o'>#</span> <span class='n'>mbarr</span><span class='o'>#</span> <span class='n'>s</span> <span class='kr'>of</span> <span class='p'>{</span> <span class='p'>(</span><span class='o'>#</span> <span class='n'>s</span><span class='p'>,</span> <span class='n'>barr</span><span class='o'>#</span>  <span class='o'>#</span><span class='p'>)</span> <span class='ow'>-&gt;</span>
+         <span class='kr'>let</span> <span class='n'>addr</span> <span class='ow'>=</span> <span class='kt'>Ptr</span> <span class='p'>(</span><span class='n'>byteArrayContents</span><span class='o'>#</span> <span class='n'>barr</span><span class='o'>#</span><span class='p'>)</span> <span class='kr'>in</span>
+         <span class='kr'>case</span> <span class='n'>action</span> <span class='n'>addr</span>    <span class='kr'>of</span> <span class='p'>{</span> <span class='kt'>IO</span> <span class='n'>action</span> <span class='ow'>-&gt;</span>
+         <span class='kr'>case</span> <span class='n'>action</span> <span class='n'>s</span>       <span class='kr'>of</span> <span class='p'>{</span> <span class='p'>(</span><span class='o'>#</span> <span class='n'>s</span><span class='p'>,</span> <span class='n'>r</span> <span class='o'>#</span><span class='p'>)</span> <span class='ow'>-&gt;</span>
+         <span class='kr'>case</span> <span class='n'>touch</span><span class='o'>#</span> <span class='n'>barr</span><span class='o'>#</span> <span class='n'>s</span> <span class='kr'>of</span> <span class='p'>{</span> <span class='n'>s</span> <span class='ow'>-&gt;</span>
+         <span class='p'>(</span><span class='o'>#</span> <span class='n'>s</span><span class='p'>,</span> <span class='n'>r</span> <span class='o'>#</span><span class='p'>)</span>
+      <span class='p'>}}}}}</span>
+</pre></div></notextile>
+<p>I would preferred serialization on top of byte arrays since you can inspect them and see the data. There&#8217;s no version of Storable for arrays, though. Not unless you use a Storable Array and then it can only be an array of that instance of Storable.</p>
+
+<p>&#8212; 4.2 Inspecting the environment &#8212;</p>
+
+<p>Erlang has plenty of tools to inspect your environment. You can get the number of processes running, a list of process ids, state of each process, etc. This very convenient for debugging.</p>
+
+<p>&#8212; 4.3 Other libraries &#8212;</p>
+
+<p>I can log any Erlang term to disk, store it in a database, etc. This makes my life significantly easier.</p>
+
+<p>&#8212; 5. Summary &#8212;</p>
+
+<p>I was able to finish the Erlang version 10 times faster and with 1/2 the code. Even if I cut the 10-11 weeks spent on the Haskell version in half to account for the learning curve, I would still come out way ahead with Erlang.</p>
+
+<p>This is due to language issues where static typing and records are working against me. This also due to the many GHC/runtime issues that I stumbled upon, specially with regards to concurrency, networking and binary IO. Last but not least, this is due to the much better library support on the Erlang side.</p>
+
+<p>I would not have been able to get the Haskell version as far as I did without the enthusiastic support from Haskell-Cafe, #haskell and the Haskell Headquarters. I can&#8217;t even imagine one of the chief Erlang designers logging in to my machine to troubleshoot some issues. Simon Marlow did! And that brings up another issue&#8230;</p>
+
+<p>Ericsson has a whole team of developers hacking the Erlang distribution all day. I don&#8217;t know the size of the team but I would think 10-15 people, maybe more. My understanding is that a separate bigger team hacks away at the OTP libraries. The flagship Ericsson AXD 301 switch has something like 1.7 million lines of Erlang code and the team that worked on it consisted of 100-300 people.</p>
+
+<p>You cannot compare the weight of the biggest telco thrown behind Erlang to the weight of Simon Marlow and Simon Peyton-Jones behind GHC, although the two Simons are without a trace of doubt VERY HEAVY.</p>
+
+<p>I would love to be able to hack away at GHC to bring it on par with Erlang. I&#8217;m not dumb and I learn very quickly. Still, it&#8217;s probably a loosing proposition. Just like specialist and narrowly focused companies dominate their market niches, the specialist languages win the day.</p>
+
+<p>Erlang is the specialist language narrowly focused on networked, highly-scalable concurrent applications. I doubt any other language can beat Erlang at what it does. Haskell is also a specialist language. Do I hear cries of disbelief? How come?</p>
+
+<p>Haskell is a specialist language for doing extremely complex things that few outside of the tight-knit Haskell PhD. community will understand or (heresy!) even care about. Also, things-probably-could-be-done-much-simpler (TM). Think Djinn, Zipper-based file server/OS, GADTs, Fundeps, Existential types, Comonads, Delimited Continuations, Yampa.</p>
+
+<p>That said, I love Haskell because it forever twisted my brain into a different shape and I think I&#8217;m overall a much better coder now. I also have a much better understanding of why LexiFi was implemented in OCaml while based on the Composing Financial Contracts (Haskell) paper.</p>
+
+<p>&#8212; 6. Forward-looking statements &#8212;</p>
+
+<p>I paid my dues. I felt the pain. I fought the fight but did not win. I drank the poison Kool-aid. I still have an itch to try to fit Haskell into trading or some other domain like AI or robotics but it seems to me that some things in Haskell are unnecessarily complex, to the detriment of my productivity.</p>
+
+<p>I started looking at Yampa a few weeks back and my interest picked up significantly after Frag was released. I would like to make the Frag/Quake monsters super-intelligent, for example. Still, looking at Yampa I cannot comprehend why coding robotics has to be so complex.</p>
+
+<p>My bet is that doing the same on top of a highly concurrent architecture and message-passing would be much easier if less declarative. To that end I will try to port Frag to Erlang and see what comes out. I suspect that I will be proven right.</p>
+
+<p>&#8212; 7. Haskell-Cafe discussions related to my project &#8212;</p>
+
+<p>&#8212; 7.2 Design &#8212;</p>
+
+<ul>
+<li><a href='http://www.nabble.com/Joels-Time-Leak-t821098.html'>Joel&#8217;s time Leak</a></li>
+
+<li><a href='http://www.nabble.com/binary-IO-t809119.html'>Binary IO</a></li>
+
+<li><a href='http://www.nabble.com/Killer-pickler-combinators-(was-Time-leak'>Killer Pickler Combinators</a>-t782253.html)</li>
+
+<li><a href='http://www.nabble.com/Haskell-Speed-t798929.html'>Haskell speed</a></li>
+
+<li><a href='http://www.nabble.com/Optimizing-a-high-traffic-network-architecture-t742725.html'>Optimizing a high-traffic network architecture</a></li>
+
+<li><a href='http://www.nabble.com/STM%2C-Concurrent-Haskell-and-network-clients-%28long%2C-code%29-t660401.html'>Concurrent Haskell and network clients</a></li>
+
+<li><a href='http://www.nabble.com/Number-of-outstanding-messages-in-Chan-or-TChan-t685529.html'>Number of outstanding messages in a TChan</a></li>
+
+<li><a href='http://www.nabble.com/Bringing-Erlang-to-Haskell-t728094.html'>Bringing Erlang to Haskell</a></li>
+
+<li><a href='http://www.nabble.com/Unbound-threads-and-FFI-t741787.html'>Unbound threads and FFI</a></li>
+
+<li><a href='http://www.nabble.com/Battling-laziness-t754457.html'>Battling laziness</a></li>
+</ul>
+
+<p>&#8212; 7.1 Runtime issues &#8212;</p>
+
+<ul>
+<li><a href='http://www.nabble.com/Spurious-program-crashes-t565345.html'>Spurious program crashes</a></li>
+
+<li><a href='http://www.nabble.com/syscall%2C-sigpause-and-EINTR-on-Mac-OSX-t719940.html'>syscall, sigpause and EINTR on Mac OSX</a></li>
+
+<li><a href='http://www.nabble.com/GHC-int'>GHC Internal error: Traverse weak<em>pt</em>list not WEAK</a></li>
+</ul>
+</div>
+
+<div id="disqus_thread"></div><script type="text/javascript" src="http://disqus.com/forums/thinkerlang/embed.js"></script><noscript><a href="http://thinkerlang.disqus.com/?url=ref">View the discussion thread.</a></noscript><a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+
+<div id="related">
+  <h2>Related Posts</h2>
+  <ul class="posts">
+    
+  </ul>
+</div>
+  
+  <div class="footer">
+    <div class="contact">
+      <p>
+        Joel Reymont<br />
+        Author of <a href="http://github.com/wagerlabs/openpoker/tree/master">OpenPoker</a><br />
+        joelr1@gmail.com
+      </p>
+    </div>
+    <div class="contact">
+      <p>
+        <a href="http://linkedin.com/jreymont">linkedin.com/jreymont</a><br />
+        <a href="http://twitter.com/wagerlabs/">twitter.com/wagerlabs</a><br />
+        <a href="http://flickr.com/photos/joelr1/">flickr.com/photos/joelr1</a>
+      </p>
+    </div>
+    <div class="rss">
+      <a href="http://feeds.feedburner.com/thinkerlang">
+        <img src="/images/rss.png" alt="Subscribe to RSS Feed" />
+      </a>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-87992-5");
+pageTracker._trackPageview();
+</script>
+<script type="text/javascript">
+//<![CDATA[
+(function() {
+		var links = document.getElementsByTagName('a');
+		var query = '?';
+		for(var i = 0; i < links.length; i++) {
+			if(links[i].href.indexOf('#disqus_thread') >= 0) {
+				query += 'url' + i + '=' + encodeURIComponent(links[i].href) + '&';
+			}
+		}
+		document.write('<script type="text/javascript" src="http://disqus.com/forums/thinkerlang/get_num_replies.js' + query + '"></' + 'script>');
+	})();
+//]]>
+</script>
+
+</body>
+</html>
