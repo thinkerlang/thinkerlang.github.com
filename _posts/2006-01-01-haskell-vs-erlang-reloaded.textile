@@ -15,9 +15,9 @@ That's a disappointing result. Mostly I think Haskell lets you precisely focus o
 
 It'd be interesting to understand which of these issues are 
 
- - language issues
- - library issues
- - compiler/run-time issues
+* language issues
+* library issues
+* compiler/run-time issues
  
 My (ill-informed) hypothesis is that better libraries would have solved much of your problems. A good example is a fast, generic serialization library.
 
