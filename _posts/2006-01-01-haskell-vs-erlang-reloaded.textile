@@ -83,32 +83,36 @@ One area where this breaks down quickly is records. 
 Compare Erlang
 
 {% highlight erlang %}
-
-    -record(pot, &123;
+<pre><code>
+  
+    -record(pot, {
       profit = 0,
       amounts = []
-     &125;).
+     }).
 
+</code></pre>
 {% endhighlight %}
 
 with Haskell
 
 {% highlight haskell %}
-
+<pre><code>
+  
     data Pot = Pot
-        &123;
+        {
          pProfit :: !Word64,
          pAmounts :: ![Word64] -- Word16/
-        &125; deriving (Show, Typeable)
+        } deriving (Show, Typeable)
 
     mkPot :: Pot
     mkPot =
         Pot
-        &123;
+        {
          pProfit = 333,
          pAmounts = []
-        &125;
+        }
 
+</code></pre>
 {% endhighlight %}
 
 The Haskell version requires twice as much lines of code just to initialize the structures with meaningful defaults. I have 164 record in the program, some of which are rather large. Renaming and using the Haskell accessor functions gets rather tedious after a while and there's nothing elegant in having to explain to the customer how xyFoo is really different from zFoo when they really mean the same thing. This might seem like no big deal but, again, I have a lot of records. 
