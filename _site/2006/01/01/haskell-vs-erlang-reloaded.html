@@ -66,7 +66,32 @@ My (ill-informed) hypothesis is that better libraries would have solved much of 
 
 <p>One area where this breaks down quickly is records. </p>
 <p>Compare Erlang</p>
+<pre><code>
+  
+    -record(pot, {
+      profit = 0,
+      amounts = []
+     }).
+
+</code></pre>
 <p>with Haskell</p>
+<pre><code>
+  
+    data Pot = Pot
+        {
+         pProfit :: !Word64,
+         pAmounts :: ![Word64] -- Word16/
+        } deriving (Show, Typeable)
+
+    mkPot :: Pot
+    mkPot =
+        Pot
+        {
+         pProfit = 333,
+         pAmounts = []
+        }
+
+</code></pre>
 <p>The Haskell version requires twice as much lines of code just to initialize the structures with meaningful defaults. I have 164 record in the program, some of which are rather large. Renaming and using the Haskell accessor functions gets rather tedious after a while and there&#8217;s nothing elegant in having to explain to the customer how xyFoo is really different from zFoo when they really mean the same thing. This might seem like no big deal but, again, I have a lot of records. </p>
 <p>I tried creating classes for each &#8220;kind&#8221; of field and I tried using HList to put these fields together into records. This seems like 1) a terrible hack compared to the Erlang version and 2) not very efficient. I did not get to measuring efficiency with a profiler but I did have <span class="caps">GHC</span> run out of memory trying to compile my HList code. <span class="caps">SPJ</span> fixed this but I decided not to take it further.</p>
 <h6>Static typing</h6>
