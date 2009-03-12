@@ -84,10 +84,10 @@ Compare Erlang
 
 {% highlight erlang %}
 
-    -record(pot, {
+    -record(pot, &123;
       profit = 0,
       amounts = []
-     }).
+     &125;).
 
 {% endhighlight %}
 
@@ -96,18 +96,18 @@ with Haskell
 {% highlight haskell %}
 
     data Pot = Pot
-        {
+        &123;
          pProfit :: !Word64,
          pAmounts :: ![Word64] -- Word16/
-        } deriving (Show, Typeable)
+        &125; deriving (Show, Typeable)
 
     mkPot :: Pot
     mkPot =
         Pot
-        {
+        &123;
          pProfit = 333,
          pAmounts = []
-        }
+        &125;
 
 {% endhighlight %}
 
@@ -328,20 +328,20 @@ h6. Haskell-Cafe discussions related to my project
 
 Design:
 
-* [Joel's time Leak](http://www.nabble.com/Joels-Time-Leak-t821098.html)
-* [Binary IO](http://www.nabble.com/binary-IO-t809119.html)
-* [Killer Pickler Combinators](http://www.nabble.com/Killer-pickler-combinators-(was-Time-leak)-t782253.html)
-* [Haskell speed](http://www.nabble.com/Haskell-Speed-t798929.html)
-* [Optimizing a high-traffic network architecture](http://www.nabble.com/Optimizing-a-high-traffic-network-architecture-t742725.html)
-* [Concurrent Haskell and network clients](http://www.nabble.com/STM%2C-Concurrent-Haskell-and-network-clients-%28long%2C-code%29-t660401.html)
-* [Number of outstanding messages in a TChan](http://www.nabble.com/Number-of-outstanding-messages-in-Chan-or-TChan-t685529.html)
-* [Bringing Erlang to Haskell](http://www.nabble.com/Bringing-Erlang-to-Haskell-t728094.html)
-* [Unbound threads and FFI](http://www.nabble.com/Unbound-threads-and-FFI-t741787.html)
-* [Battling laziness](http://www.nabble.com/Battling-laziness-t754457.html)
+* "Joel's time Leak":http://www.nabble.com/Joels-Time-Leak-t821098.html
+* "Binary IO]:http://www.nabble.com/binary-IO-t809119.html
+* "Killer Pickler Combinators":http://www.nabble.com/Killer-pickler-combinators-(was-Time-leak)-t782253.html
+* "Haskell speed":http://www.nabble.com/Haskell-Speed-t798929.html
+* "Optimizing a high-traffic network architecture":http://www.nabble.com/Optimizing-a-high-traffic-network-architecture-t742725.html
+* "Concurrent Haskell and network clients":http://www.nabble.com/STM%2C-Concurrent-Haskell-and-network-clients-%28long%2C-code%29-t660401.html
+* "Number of outstanding messages in a TChan":http://www.nabble.com/Number-of-outstanding-messages-in-Chan-or-TChan-t685529.html
+* "Bringing Erlang to Haskell":http://www.nabble.com/Bringing-Erlang-to-Haskell-t728094.html
+* "Unbound threads and FFI":http://www.nabble.com/Unbound-threads-and-FFI-t741787.html
+* "Battling laziness":http://www.nabble.com/Battling-laziness-t754457.html
 
 Runtime issues:
 
-* [Spurious program crashes](http://www.nabble.com/Spurious-program-crashes-t565345.html)
-* [syscall, sigpause and EINTR on Mac OSX](http://www.nabble.com/syscall%2C-sigpause-and-EINTR-on-Mac-OSX-t719940.html)
-* [GHC Internal error: Traverse weak_pt_list not WEAK](http://www.nabble.com/GHC-int)
+* "Spurious program crashes":http://www.nabble.com/Spurious-program-crashes-t565345.html
+* "syscall, sigpause and EINTR on Mac OSX":http://www.nabble.com/syscall%2C-sigpause-and-EINTR-on-Mac-OSX-t719940.html
+* "GHC Internal error: Traverse weak_pt_list not WEAK":http://www.nabble.com/GHC-int
 

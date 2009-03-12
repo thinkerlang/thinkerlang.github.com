@@ -30,11 +30,13 @@
 Using <a href="http://www.haskell.org">Haskell</a> for this networking app forced me to focus on all the issues but the business logic. Type constraints, binary IO and serialization, minimizing memory use and fighting laziness, timers, tweaking concurrency and setting up message channels, you name it.</p>
 <p>That&#8217;s a disappointing result. Mostly I think Haskell lets you precisely focus on the logic of your program, because lots else is taken care of behind the scenes. You found precisely the reverse.</p>
 <p>It&#8217;d be interesting to understand which of these issues are</p>
-- language issues
-- library issues
-- compiler/run-time issues
-
-<p>My (ill-informed) hypothesis is that better libraries would have solved much of your problems. A good example is a fast, generic serialization library.</p>
+<ul>
+	<li>language issues</li>
+	<li>library issues</li>
+	<li>compiler/run-time issues<br />
+ <br />
+My (ill-informed) hypothesis is that better libraries would have solved much of your problems. A good example is a fast, generic serialization library.</li>
+</ul>
 <p>If you felt able (sometime) to distill your experience under headings like the above, only more concretely and precisely, I think it might help to motivate Haskellers to start solving them.</p>
 </blockquote>
 <p>Please browse through the <a href="http://www.nabble.com/Project-postmortem-t570675.html">original Haskell Postmortem thread</a> for background info. Then read this post and head to the thread describing my <a href="http://www.erlang.org/ml-archive/erlang-questions/200601/msg00003.html">Erlang rewrite experience</a>.</p>
@@ -156,22 +158,22 @@ Using <a href="http://www.haskell.org">Haskell</a> for this networking app force
 <h6>Haskell-Cafe discussions related to my project</h6>
 <p>Design:</p>
 <ul>
-	<li>[Joel&#8217;s time Leak](http://www.nabble.com/Joels-Time-Leak-t821098.html)</li>
-	<li>[Binary IO](http://www.nabble.com/binary-IO-t809119.html)</li>
-	<li>[Killer Pickler Combinators](http://www.nabble.com/Killer-pickler-combinators-(was-Time-leak)-t782253.html)</li>
-	<li>[Haskell speed](http://www.nabble.com/Haskell-Speed-t798929.html)</li>
-	<li>[Optimizing a high-traffic network architecture](http://www.nabble.com/Optimizing-a-high-traffic-network-architecture-t742725.html)</li>
-	<li>[Concurrent Haskell and network clients](http://www.nabble.com/<span class="caps">STM</span>%2C-Concurrent-Haskell-and-network-clients-%28long%2C-code%29-t660401.html)</li>
-	<li>[Number of outstanding messages in a TChan](http://www.nabble.com/Number-of-outstanding-messages-in-Chan-or-TChan-t685529.html)</li>
-	<li>[Bringing Erlang to Haskell](http://www.nabble.com/Bringing-Erlang-to-Haskell-t728094.html)</li>
-	<li>[Unbound threads and <span class="caps">FFI</span>](http://www.nabble.com/Unbound-threads-and-<span class="caps">FFI</span>-t741787.html)</li>
-	<li>[Battling laziness](http://www.nabble.com/Battling-laziness-t754457.html)</li>
+	<li><a href="http://www.nabble.com/Joels-Time-Leak-t821098.html">Joel&#8217;s time Leak</a></li>
+	<li>&#8220;Binary IO]:http://www.nabble.com/binary-IO-t809119.html</li>
+	<li><a href="http://www.nabble.com/Killer-pickler-combinators-(was-Time-leak)-t782253.html">Killer Pickler Combinators</a></li>
+	<li><a href="http://www.nabble.com/Haskell-Speed-t798929.html">Haskell speed</a></li>
+	<li><a href="http://www.nabble.com/Optimizing-a-high-traffic-network-architecture-t742725.html">Optimizing a high-traffic network architecture</a></li>
+	<li><a href="http://www.nabble.com/STM%2C-Concurrent-Haskell-and-network-clients-%28long%2C-code%29-t660401.html">Concurrent Haskell and network clients</a></li>
+	<li><a href="http://www.nabble.com/Number-of-outstanding-messages-in-Chan-or-TChan-t685529.html">Number of outstanding messages in a TChan</a></li>
+	<li><a href="http://www.nabble.com/Bringing-Erlang-to-Haskell-t728094.html">Bringing Erlang to Haskell</a></li>
+	<li><a href="http://www.nabble.com/Unbound-threads-and-FFI-t741787.html">Unbound threads and <span class="caps">FFI</span></a></li>
+	<li><a href="http://www.nabble.com/Battling-laziness-t754457.html">Battling laziness</a></li>
 </ul>
 <p>Runtime issues:</p>
 <ul>
-	<li>[Spurious program crashes](http://www.nabble.com/Spurious-program-crashes-t565345.html)</li>
-	<li>[syscall, sigpause and <span class="caps">EINTR</span> on Mac <span class="caps">OSX</span>](http://www.nabble.com/syscall%2C-sigpause-and-<span class="caps">EINTR</span>-on-Mac-<span class="caps">OSX</span>-t719940.html)</li>
-	<li>[<span class="caps">GHC</span> Internal error: Traverse weak_pt_list not <span class="caps">WEAK</span>](http://www.nabble.com/<span class="caps">GHC</span>-int)</li>
+	<li><a href="http://www.nabble.com/Spurious-program-crashes-t565345.html">Spurious program crashes</a></li>
+	<li><a href="http://www.nabble.com/syscall%2C-sigpause-and-EINTR-on-Mac-OSX-t719940.html">syscall, sigpause and <span class="caps">EINTR</span> on Mac <span class="caps">OSX</span></a></li>
+	<li><a href="http://www.nabble.com/GHC-int"><span class="caps">GHC</span> Internal error: Traverse weak_pt_list not <span class="caps">WEAK</span></a></li>
 </ul>
 </div>
 
