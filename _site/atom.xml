@@ -4,7 +4,7 @@
  <title>The Erlang Journal</title>
  <link href="http://thinkerlang.com/atom.xml" rel="self"/>
  <link href="http://thinkerlang.com/"/>
- <updated>2009-03-12T14:27:41+00:00</updated>
+ <updated>2009-03-12T14:29:02+00:00</updated>
  <id>http://thinkerlang.com/</id>
  <author>
    <name>Joel Reymont</name>
@@ -943,7 +943,7 @@ My (ill-informed) hypothesis is that better libraries would have solved much of 
 &lt;p&gt;Design:&lt;/p&gt;
 &lt;ul&gt;
 	&lt;li&gt;&lt;a href="http://www.nabble.com/Joels-Time-Leak-t821098.html"&gt;Joel&#8217;s time Leak&lt;/a&gt;&lt;/li&gt;
-	&lt;li&gt;&#8220;Binary IO]:http://www.nabble.com/binary-IO-t809119.html&lt;/li&gt;
+	&lt;li&gt;&lt;a href="http://www.nabble.com/binary-IO-t809119.html"&gt;Binary IO&lt;/a&gt;&lt;/li&gt;
 	&lt;li&gt;&lt;a href="http://www.nabble.com/Killer-pickler-combinators-(was-Time-leak)-t782253.html"&gt;Killer Pickler Combinators&lt;/a&gt;&lt;/li&gt;
 	&lt;li&gt;&lt;a href="http://www.nabble.com/Haskell-Speed-t798929.html"&gt;Haskell speed&lt;/a&gt;&lt;/li&gt;
 	&lt;li&gt;&lt;a href="http://www.nabble.com/Optimizing-a-high-traffic-network-architecture-t742725.html"&gt;Optimizing a high-traffic network architecture&lt;/a&gt;&lt;/li&gt;

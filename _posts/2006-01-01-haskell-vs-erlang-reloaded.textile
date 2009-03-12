@@ -329,7 +329,7 @@ h6. Haskell-Cafe discussions related to my project
 Design:
 
 * "Joel's time Leak":http://www.nabble.com/Joels-Time-Leak-t821098.html
-* "Binary IO]:http://www.nabble.com/binary-IO-t809119.html
+* "Binary IO":http://www.nabble.com/binary-IO-t809119.html
 * "Killer Pickler Combinators":http://www.nabble.com/Killer-pickler-combinators-(was-Time-leak)-t782253.html
 * "Haskell speed":http://www.nabble.com/Haskell-Speed-t798929.html
 * "Optimizing a high-traffic network architecture":http://www.nabble.com/Optimizing-a-high-traffic-network-architecture-t742725.html
