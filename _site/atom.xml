@@ -4,7 +4,7 @@
  <title>The Erlang Journal</title>
  <link href="http://thinkerlang.com/atom.xml" rel="self"/>
  <link href="http://thinkerlang.com/"/>
- <updated>2009-03-11T22:47:08+00:00</updated>
+ <updated>2009-03-12T14:06:25+00:00</updated>
  <id>http://thinkerlang.com/</id>
  <author>
    <name>Joel Reymont</name>
@@ -104,7 +104,7 @@ ok
    <link href="http://thinkerlang.com/2008/02/03/parsing-text-and-binary-files-with-erlang.html"/>
    <updated>2008-02-03T00:00:00+00:00</updated>
    <id>http://thinkerlang.com/2008/02/03/parsing-text-and-binary-files-with-erlang</id>
-   <content type="html">&lt;h1&gt;Parsing text and binary files with Erlang&lt;/h1&gt;
+   <content type="html">&lt;h3&gt;Parsing text and binary files with Erlang&lt;/h3&gt;
 &lt;p class="meta"&gt;03 Feb 2008 &#8211; Tenerife&lt;/p&gt;
 &lt;p&gt;Erlang originated in the telecommunications industry where one of the major tasks is conversion of text and binary data from one format to another. This is a task that Erlang excels at!&lt;/p&gt;
 &lt;p&gt;Parsing text and binary data is something that you will be doing very often in the course of writing your super-scalable internet servers so lets take a look at some efficient approaches to parsing text and binary data.&lt;/p&gt;
@@ -691,7 +691,7 @@ Once we know our supporting code works, we can proceed with the rest. Here we te
    <link href="http://thinkerlang.com/2007/10/13/upgrading-your-erlang-cluster-on-amazon-ec2.html"/>
    <updated>2007-10-13T00:00:00+01:00</updated>
    <id>http://thinkerlang.com/2007/10/13/upgrading-your-erlang-cluster-on-amazon-ec2</id>
-   <content type="html">&lt;h1&gt;Upgrading your Erlang cluster on Amazon EC2&lt;/h1&gt;
+   <content type="html">&lt;h3&gt;Upgrading your Erlang cluster on Amazon EC2&lt;/h3&gt;
 &lt;p class="meta"&gt;13 Oct 2007 &#8211; Tenerife&lt;/p&gt;
 &lt;p&gt;This article describes how to upgrade an Erlang cluster in one fell swoop once you have deployed it on Amazon EC2.&lt;/p&gt;
 &lt;h6&gt;Why not the Erlang/&lt;span class="caps"&gt;OTP&lt;/span&gt; upgrade procedure&lt;/h6&gt;
@@ -732,7 +732,7 @@ Once we know our supporting code works, we can proceed with the rest. Here we te
    <link href="http://thinkerlang.com/2007/10/12/setting-up-erlang-on-amazon-ec2.html"/>
    <updated>2007-10-12T00:00:00+01:00</updated>
    <id>http://thinkerlang.com/2007/10/12/setting-up-erlang-on-amazon-ec2</id>
-   <content type="html">&lt;h1&gt;Setting up Erlang on Amazon EC2&lt;/h1&gt;
+   <content type="html">&lt;h3&gt;Setting up Erlang on Amazon EC2&lt;/h3&gt;
 &lt;p class="meta"&gt;12 Oct 2007 &#8211; Tenerife&lt;/p&gt;
 &lt;p&gt;This article describes a project that I recently completed for a startup company. The code is proprietary and cannot be published but the company has graciously allowed me to write about my experience.&lt;/p&gt;
 &lt;h6&gt;Why Erlang and Amazon EC2?&lt;/h6&gt;
@@ -782,236 +782,155 @@ systools:make_script("diskless", [local, {outdir, "./ebin"}]).
    <link href="http://thinkerlang.com/2006/01/01/haskell-vs-erlang-reloaded.html"/>
    <updated>2006-01-01T00:00:00+00:00</updated>
    <id>http://thinkerlang.com/2006/01/01/haskell-vs-erlang-reloaded</id>
-   <content type="html">&lt;h1 id='haskell_vs_erlang_reloaded'&gt;Haskell vs Erlang, Reloaded&lt;/h1&gt;
-&lt;p class='meta'&gt;01 Jan 2006 - Tenerife&lt;/p&gt;
-&lt;p&gt;On Dec 29, 2005, at 8:22 AM, &lt;a href='http://research.microsoft.com/Users/simonpj/'&gt;Simon Peyton-Jones&lt;/a&gt; wrote in response to me:&lt;/p&gt;
+   <content type="html">&lt;h3&gt;Haskell vs Erlang, Reloaded&lt;/h3&gt;
+&lt;p class="meta"&gt;01 Jan 2006 &#8211; Tenerife&lt;/p&gt;
+&lt;p&gt;On Dec 29, 2005, at 8:22 AM, &lt;a href="http://research.microsoft.com/Users/simonpj/"&gt;Simon Peyton-Jones&lt;/a&gt; wrote in response to me:&lt;br /&gt;
+&lt;blockquote&gt;&lt;br /&gt;
+Using &lt;a href="http://www.haskell.org"&gt;Haskell&lt;/a&gt; for this networking app forced me to focus on all the issues but the business logic. Type constraints, binary IO and serialization, minimizing memory use and fighting laziness, timers, tweaking concurrency and setting up message channels, you name it.&lt;/p&gt;
+&lt;p&gt;That&#8217;s a disappointing result. Mostly I think Haskell lets you precisely focus on the logic of your program, because lots else is taken care of behind the scenes. You found precisely the reverse.&lt;/p&gt;
+&lt;p&gt;It&#8217;d be interesting to understand which of these issues are&lt;/p&gt;
+- language issues
+- library issues
+- compiler/run-time issues
 
-&lt;blockquote&gt;
-&lt;blockquote&gt;
-&lt;p&gt;Using &lt;a href='http://www.haskell.org'&gt;Haskell&lt;/a&gt; for this networking app forced me to focus on all the issues but the business logic. Type constraints, binary IO and serialization, minimizing memory use and fighting laziness, timers, tweaking concurrency and setting up message channels, you name it.&lt;/p&gt;
+&lt;p&gt;My (ill-informed) hypothesis is that better libraries would have solved much of your problems. A good example is a fast, generic serialization library.&lt;/p&gt;
+&lt;p&gt;If you felt able (sometime) to distill your experience under headings like the above, only more concretely and precisely, I think it might help to motivate Haskellers to start solving them.&lt;/p&gt;
 &lt;/blockquote&gt;
+&lt;p&gt;Please browse through the &lt;a href="http://www.nabble.com/Project-postmortem-t570675.html"&gt;original Haskell Postmortem thread&lt;/a&gt; for background info. Then read this post and head to the thread describing my &lt;a href="http://www.erlang.org/ml-archive/erlang-questions/200601/msg00003.html"&gt;Erlang rewrite experience&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;That&#8217;s a disappointing result. Mostly I think Haskell lets you precisely focus on the logic of your program, because lots else is taken care of behind the scenes. You found precisely the reverse. It&#8217;d be interesting to understand which of these issues are&lt;/p&gt;
 
-&lt;ul&gt;
-&lt;li&gt;language issues&lt;/li&gt;
 
-&lt;li&gt;library issues&lt;/li&gt;
-
-&lt;li&gt;compiler/run-time issues My (ill-informed) hypothesis is that better libraries would have solved much of your problems. A good example is a fast, generic serialization library. If you felt able (sometime) to distill your experience under headings like the above, only more concretely and precisely, I think it might help to motivate Haskellers to start solving them.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Please browse through the &lt;a href='http://www.nabble.com/Project-postmortem-t570675.html'&gt;original Haskell Postmortem thread&lt;/a&gt; for some background info. Then read this post and head to the thread describing my &lt;a href='http://www.erlang.org/ml-archive/erlang-questions/200601/msg00003.html'&gt;Erlang rewrite experience&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;Other threads relevant to my experience, including crashes and &lt;a href='http://www.haskell.org/ghc'&gt;Glasgow Haskell Compiler (GHC)&lt;/a&gt; runtime issues included at the bottom of this post.&lt;/p&gt;
-
-&lt;p&gt;&#8212; 1. Goals &#8212;&lt;/p&gt;
-
+&lt;p&gt;Other threads relevant to my experience, including crashes and &lt;a href="http://www.haskell.org/ghc" title="&lt;span class=&quot;caps&quot;&gt;GHC&lt;/span&gt;"&gt;Glasgow Haskell Compiler&lt;/a&gt; runtime issues included at the bottom of this post.&lt;/p&gt;
+&lt;h6&gt;Goals&lt;/h6&gt;
 &lt;p&gt;The goal of my project was to be able to thoroughly test a poker server using poker bots. Each poker bot was to to excercise different parts of the server by talking the poker protocol consisting of 150+ binary messages. The poker server itself is written in C++ and runs on Windows.&lt;/p&gt;
-
 &lt;p&gt;Easy scripting was an essential requirement since customer&#8217;s QA techs were not programmers but needed to be able to write the bots. Another key requirement was to be able to launch at least 4,000 poker bots from a single machine.&lt;/p&gt;
-
 &lt;p&gt;This app is all about binary IO, thousands of threads/processes and easy serialization. All I ever wanted to do was send packets back and forth, analyze them and have thousands of poker bots running on my machine doing same. Lofty but simple goal :-). Little did I know!&lt;/p&gt;
-
-&lt;p&gt;&#8212; 2. Summary &#8212;&lt;/p&gt;
-
-&lt;p&gt;I spent a few months writing a poker server in Erlang but fell in love with Haskell after reading &lt;a href='http://research.microsoft.com/Users/simonpj/Papers/financial-contracts/contracts-icfp.htm'&gt;Simon&#8217;s Composing Financial Contracts&lt;/a&gt; paper. I thought I would do this project in Haskell since my customer expressed a concern about QA techs having to learn Erlang and the Haskell syntax looked clean and elegant.&lt;/p&gt;
-
+&lt;h6&gt;Summary&lt;/h6&gt;
+&lt;p&gt;I spent a few months writing a poker server in Erlang but fell in love with Haskell after reading &lt;a href="http://research.microsoft.com/Users/simonpj/Papers/financial-contracts/contracts-icfp.htm"&gt;Simon&#8217;s Composing Financial Contracts&lt;/a&gt; paper. When I was offered to write a stress tool for an existing poker server, I thought I would write it in Haskell since my customer expressed a concern about QA techs having to learn Erlang and the Haskell syntax looked clean and elegant.&lt;/p&gt;
 &lt;p&gt;Overall, I spent 10-11 weeks on the Haskell version of the project. The end result did not turn out as elegant as I wanted it to be and wasn&#8217;t easy on the QA techs. They told me, in retrospect, that the Erlang code was easier to understand and they preferred it.&lt;/p&gt;
+&lt;p&gt;It took me less than 1 week to rewrite the app in Erlang. It&#8217;s the end of that week and I&#8217;m already way past the state of the Haskell version. The Erlang code, at 3900 lines of code (&lt;span class="caps"&gt;LOC&lt;/span&gt;) including examples, is about 50% of the Haskell code. &lt;/p&gt;
+&lt;p&gt;It&#8217;s far easier to rewrite the code when you know the application, of course, but this rewrite did not involve a lot of domain knowledge. I also &lt;a href="http://wagerlabs.com/erlang/pickle.erl"&gt;translated to Erlang&lt;/a&gt; the original code in the &lt;a href="http://research.microsoft.com/~akenn/fun/picklercombinators.pdf"&gt;Pickler Combinators&lt;/a&gt; paper.&lt;/p&gt;
 
-&lt;p&gt;It took me less than 1 week to rewrite the app in Erlang. It&#8217;s the end of that week and I&#8217;m already way past the state of the Haskell version. The Erlang code, at 3900 lines of code (LOC) including examples, is about 50% of the Haskell code. &lt;/p&gt;
-
-&lt;p&gt;It&#8217;s far easier to rewrite the code when you know the application, of course, but this rewrite did not involve a lot of domain knowledge. I also &lt;a href='http://wagerlabs.com/erlang/pickle.erl'&gt;translated to Erlang&lt;/a&gt; the original code in the &lt;a href='http://research.microsoft.com/~akenn/fun/picklercombinators.pdf'&gt;Pickler Combinators&lt;/a&gt; paper.&lt;/p&gt;
-
-&lt;p&gt;&#8212; 3. Issues &#8212;&lt;/p&gt;
-
-&lt;p&gt;I spent the first few weeks of the project coding the packets using &lt;span&gt;Word8&lt;/span&gt; serialization. This proved to be naive as the app ate HUGE amounts of memory. I didn&#8217;t concern myself with applying strictness at that point. &lt;/p&gt;
-
-&lt;p&gt;I ran into a dead end on Windows for some reason. The app seemed to hang frequently when running hundreds of threads on Windows and did it in ways that were distinctly different from Mac OSX. The customer had FreeBSD and agreed to run my app on it.&lt;/p&gt;
-
+&lt;h6&gt;Issues&lt;/h6&gt;
+&lt;p&gt;I spent the first few weeks of the project coding the packets using [Word8] serialization. This proved to be naive as the app ate &lt;span class="caps"&gt;HUGE&lt;/span&gt; amounts of memory. I didn&#8217;t concern myself with applying strictness at that point. &lt;/p&gt;
+&lt;p&gt;I ran into a dead end on Windows for some reason. The app seemed to hang frequently when running hundreds of threads on Windows and did it in ways that were distinctly different from Mac &lt;span class="caps"&gt;OSX&lt;/span&gt;. The customer had FreeBSD and agreed to run my app on it.&lt;/p&gt;
 &lt;p&gt;Running on FreeBSD did not improve things and that&#8217;s when I started looking deeply into strictness optimizations, etc. After 10-11 weeks with this app I was still nowhere near my goals and I had no guarantee that all my issues would be resolved this this tweak or that.&lt;/p&gt;
+&lt;h6&gt;Runtime issues&lt;/h6&gt;
+&lt;p&gt;What threw me off almost right away is the large number of &lt;span class="caps"&gt;GHC&lt;/span&gt; runtime issues that I stumbled upon. I was trying to do serialization and heavy concurrency which I learned to take for granted with Erlang but it turned out that this area of &lt;span class="caps"&gt;GHC&lt;/span&gt; has not been exercised enough. &lt;/p&gt;
+&lt;h6&gt;Records&lt;/h6&gt;
+&lt;p&gt;Haskell is supposed to be about declarative programming. Haskell programs should &lt;a href="http://www.cs.chalmers.se/ComputingScience/Research/Functional/Fudgets/haskell-vs-ada-abstract.html"&gt;look like specifications&lt;/a&gt;. Haskell is supposed to be succint and &lt;a href="http://www.paulgraham.com/power.html"&gt;Succinctness is Power&lt;/a&gt;, according to &lt;a href="http://www.paulgraham.com/"&gt;Paul Graham&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;&#8212; 3.1. Runtime issues &#8212;&lt;/p&gt;
-
-&lt;p&gt;What threw me off almost right away is the large number of GHC runtime issues that I stumbled upon. I was trying to do serialization and heavy concurrency which I learned to take for granted with Erlang but it turned out that this area of GHC has not been exercised enough. &lt;/p&gt;
-
-&lt;p&gt;&#8212; 3.2 Records &#8212;&lt;/p&gt;
-
-&lt;p&gt;Haskell is supposed to be about declarative programming. Haskell programs should &lt;a href='http://www.cs.chalmers.se/ComputingScience/Research/Functional/Fudgets/haskell-vs-ada-abstract.html'&gt;look like specifications&lt;/a&gt;. Haskell is not supposed to be verbose and &lt;a href='http://www.paulgraham.com/power.html'&gt;Succinctness is Power&lt;/a&gt;, according to &lt;a href='http://www.paulgraham.com/'&gt;Paul Graham&lt;/a&gt;.&lt;/p&gt;
 
 &lt;p&gt;One area where this breaks down quickly is records. &lt;/p&gt;
-
 &lt;p&gt;Compare Erlang&lt;/p&gt;
-&lt;notextile /&gt;
 &lt;p&gt;with Haskell&lt;/p&gt;
-&lt;notextile /&gt;
 &lt;p&gt;The Haskell version requires twice as much lines of code just to initialize the structures with meaningful defaults. I have 164 record in the program, some of which are rather large. Renaming and using the Haskell accessor functions gets rather tedious after a while and there&#8217;s nothing elegant in having to explain to the customer how xyFoo is really different from zFoo when they really mean the same thing. This might seem like no big deal but, again, I have a lot of records. &lt;/p&gt;
-
-&lt;p&gt;I tried creating classes for each &#8220;kind&#8221; of field and I tried using HList to put these fields together into records. This seems like 1) a terrible hack compared to the Erlang version and 2) not very efficient. I did not get to measuring efficiency with a profiler but I did have GHC run out of memory trying to compile my HList code. SPJ fixed this but I decided not to take it further.&lt;/p&gt;
-
-&lt;p&gt;&#8212; 3.2 Static typing &#8212;&lt;/p&gt;
-
+&lt;p&gt;I tried creating classes for each &#8220;kind&#8221; of field and I tried using HList to put these fields together into records. This seems like 1) a terrible hack compared to the Erlang version and 2) not very efficient. I did not get to measuring efficiency with a profiler but I did have &lt;span class="caps"&gt;GHC&lt;/span&gt; run out of memory trying to compile my HList code. &lt;span class="caps"&gt;SPJ&lt;/span&gt; fixed this but I decided not to take it further.&lt;/p&gt;
+&lt;h6&gt;Static typing&lt;/h6&gt;
 &lt;p&gt;The records issue is a language issue just like static typing working against me with events. Part of the reason why the Erlang code is 1/2 the size of the Haskell code is that Erlang is dynamically typed. I just post an event of any type I want. I basically post tuples of various sizes but Haskell requires me to either use Dynamic or define the events in advance. &lt;/p&gt;
-
-&lt;p&gt;Yes, I did retrofit the code with data Event a = Foo | Bar | Baz a late in the development cycle but it was a major pain in the rear, specially when it came to my &#8220;bot monad&#8221;. &lt;/p&gt;
-
+&lt;p&gt;Yes, I did retrofit the code with &lt;div class="highlight"&gt;&lt;pre&gt; &lt;span class="kr"&gt;data&lt;/span&gt; &lt;span class="kt"&gt;Event&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="kt"&gt;Foo&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="kt"&gt;Bar&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="kt"&gt;Baz&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; 
+&lt;/pre&gt;&lt;/div&gt; late in the development cycle but it was a major pain in the rear, specially when it came to my &lt;em&gt;bot monad&lt;/em&gt;. &lt;/p&gt;
 &lt;p&gt;Speaking of monads&#8230; There&#8217;s not a lot of beauty in this:&lt;/p&gt;
-&lt;notextile /&gt;
 &lt;p&gt;and then this:&lt;/p&gt;
-&lt;notextile /&gt;
 &lt;p&gt;In fact, I still don&#8217;t have anywhere near in-depth knowledge of how to write my own monad.&lt;/p&gt;
-
 &lt;p&gt;Erlang is free of side effects (built-in function aside) just like Haskell but pattern-matching becomes far easier and the code becomes much smaller when you don&#8217;t have to deal with static typing. To wit:&lt;/p&gt;
-&lt;notextile /&gt;
-&lt;p&gt;&#8212; 3.3 Concurrency &#8212;&lt;/p&gt;
-
-&lt;p&gt;Concurrency in Haskell deserves a praise, specially when used together with &lt;a href='http://www.haskell.org/~simonmar/papers/stm.pdf'&gt;STM&lt;/a&gt;. Threads are lightweight (1024 bytes on the heap) and easy to launch and STM is a beautiful thing. Nothing beats being able to just send yourself a message, though. This is something that you can easily do with Erlang.&lt;/p&gt;
-
+&lt;h6&gt;Concurrency&lt;/h6&gt;
+&lt;p&gt;Concurrency in Haskell deserves a praise, specially when used together with &lt;a href="http://www.haskell.org/~simonmar/papers/stm.pdf"&gt;&lt;span class="caps"&gt;STM&lt;/span&gt;&lt;/a&gt;. Threads are lightweight (1024 bytes on the heap) and easy to launch and &lt;span class="caps"&gt;STM&lt;/span&gt; is a  beautiful thing. Nothing beats being able to just send yourself a message, though. This is something that you can easily do with Erlang.&lt;/p&gt;
 &lt;p&gt;Erlang processes (327 bytes starting up, including heap) come with a message queue and you retrieve messages with &#8220;selective receive&#8221; that uses the same pattern-matching facilities as everything else.&lt;/p&gt;
-&lt;notextile&gt;&lt;div class='highlight'&gt;&lt;pre&gt;    &lt;span class='c'&gt;%%% Dispatch event&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;    &lt;span class="c"&gt;%%% Dispatch event&lt;/span&gt;
 
-    &lt;span class='n'&gt;run&lt;/span&gt;&lt;span class='p'&gt;(_,&lt;/span&gt; &lt;span class='p'&gt;{&lt;/span&gt;&lt;span class='n'&gt;keep_going&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='nv'&gt;Bot&lt;/span&gt;&lt;span class='p'&gt;})&lt;/span&gt; 
-      &lt;span class='k'&gt;when&lt;/span&gt; &lt;span class='nb'&gt;is_record&lt;/span&gt;&lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='nv'&gt;Bot&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='n'&gt;bot&lt;/span&gt;&lt;span class='p'&gt;)&lt;/span&gt; &lt;span class='o'&gt;-&gt;&lt;/span&gt;
-        &lt;span class='k'&gt;receive&lt;/span&gt;
-    	&lt;span class='p'&gt;{&lt;/span&gt;&lt;span class='n'&gt;tcp&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='p'&gt;_,&lt;/span&gt; &lt;span class='o'&gt;&lt;&lt;&lt;/span&gt;&lt;span class='nv'&gt;Packet&lt;/span&gt;&lt;span class='o'&gt;/&lt;/span&gt;&lt;span class='n'&gt;binary&lt;/span&gt;&lt;span class='o'&gt;&gt;&gt;&lt;/span&gt;&lt;span class='p'&gt;}&lt;/span&gt; &lt;span class='o'&gt;-&gt;&lt;/span&gt;
-    	    &lt;span class='nv'&gt;Event&lt;/span&gt; &lt;span class='o'&gt;=&lt;/span&gt; &lt;span class='n'&gt;unpickle&lt;/span&gt;&lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='nv'&gt;Bot&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='nv'&gt;Packet&lt;/span&gt;&lt;span class='p'&gt;),&lt;/span&gt;
-    	    &lt;span class='n'&gt;run&lt;/span&gt;&lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='nv'&gt;Bot&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='n'&gt;handle&lt;/span&gt;&lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='nv'&gt;Bot&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='nv'&gt;Event&lt;/span&gt;&lt;span class='p'&gt;));&lt;/span&gt;
-    	&lt;span class='p'&gt;{&lt;/span&gt;&lt;span class='n'&gt;script&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='nv'&gt;Event&lt;/span&gt;&lt;span class='p'&gt;}&lt;/span&gt; &lt;span class='o'&gt;-&gt;&lt;/span&gt;
-    	    &lt;span class='k'&gt;case&lt;/span&gt; &lt;span class='nv'&gt;Event&lt;/span&gt; &lt;span class='k'&gt;of&lt;/span&gt;
-    		&lt;span class='p'&gt;{&lt;/span&gt;&lt;span class='n'&gt;tables&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='p'&gt;[&lt;/span&gt;&lt;span class='nv'&gt;H&lt;/span&gt;&lt;span class='p'&gt;|&lt;/span&gt;&lt;span class='nv'&gt;T&lt;/span&gt;&lt;span class='p'&gt;]}&lt;/span&gt; &lt;span class='o'&gt;-&gt;&lt;/span&gt;
-    		    &lt;span class='nb'&gt;trace&lt;/span&gt;&lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='nv'&gt;Bot&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='mi'&gt;95&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='s'&gt;&quot;Event: {tables, [&lt;/span&gt;&lt;span class='si'&gt;~w&lt;/span&gt;&lt;span class='s'&gt;, &lt;/span&gt;&lt;span class='si'&gt;~w&lt;/span&gt;&lt;span class='s'&gt; more]}&quot;&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt;
-    			  &lt;span class='p'&gt;[&lt;/span&gt;&lt;span class='nv'&gt;H&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='nb'&gt;length&lt;/span&gt;&lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='nv'&gt;T&lt;/span&gt;&lt;span class='p'&gt;)]);&lt;/span&gt;
-    		&lt;span class='p'&gt;_&lt;/span&gt; &lt;span class='o'&gt;-&gt;&lt;/span&gt;
-    		    &lt;span class='nb'&gt;trace&lt;/span&gt;&lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='nv'&gt;Bot&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='mi'&gt;95&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='s'&gt;&quot;Event: &lt;/span&gt;&lt;span class='si'&gt;~p&lt;/span&gt;&lt;span class='s'&gt;&quot;&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='p'&gt;[&lt;/span&gt;&lt;span class='nv'&gt;Event&lt;/span&gt;&lt;span class='p'&gt;])&lt;/span&gt;
-    	    &lt;span class='k'&gt;end&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt;
-    	    &lt;span class='n'&gt;run&lt;/span&gt;&lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='nv'&gt;Bot&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='n'&gt;handle&lt;/span&gt;&lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='nv'&gt;Bot&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='nv'&gt;Event&lt;/span&gt;&lt;span class='p'&gt;));&lt;/span&gt;
-    	&lt;span class='nv'&gt;Any&lt;/span&gt; &lt;span class='o'&gt;-&gt;&lt;/span&gt;
-    	    &lt;span class='n'&gt;run&lt;/span&gt;&lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='nv'&gt;Bot&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='n'&gt;handle&lt;/span&gt;&lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='nv'&gt;Bot&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='nv'&gt;Any&lt;/span&gt;&lt;span class='p'&gt;))&lt;/span&gt;
-        &lt;span class='k'&gt;end&lt;/span&gt;&lt;span class='p'&gt;;&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;&lt;/notextile&gt;
-&lt;p&gt;This code just works. It collects network messages, events, timer events, you name it. Posting an event is also easy.&lt;/p&gt;
-&lt;notextile&gt;&lt;div class='highlight'&gt;&lt;pre&gt;    &lt;span class='n'&gt;post&lt;/span&gt;&lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='nv'&gt;Bot&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='nv'&gt;Event&lt;/span&gt;&lt;span class='p'&gt;)&lt;/span&gt; &lt;span class='o'&gt;-&gt;&lt;/span&gt;
-        &lt;span class='n'&gt;self&lt;/span&gt;&lt;span class='p'&gt;()&lt;/span&gt; &lt;span class='o'&gt;!&lt;/span&gt; &lt;span class='p'&gt;{&lt;/span&gt;&lt;span class='n'&gt;script&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='nv'&gt;Event&lt;/span&gt;&lt;span class='p'&gt;}.&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;&lt;/notextile&gt;
-&lt;p&gt;I tried implementing this scheme using &lt;a href='http://www.haskell.org/ghc/docs/latest/html/libraries/stm/Control-Concurrent-STM-TChan.html'&gt;STM.TChan&lt;/a&gt; but failed. The best example of this is my logger. The most natural way to implement logging seemed to be by reading from a TChan in a loop and printing out the messages. I launched several thousand threads, all logging to the single TChan. Bummer, I think I ran out of memory.&lt;/p&gt;
-
+    &lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(_,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;keep_going&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;Bot&lt;/span&gt;&lt;span class="p"&gt;})&lt;/span&gt; 
+      &lt;span class="k"&gt;when&lt;/span&gt; &lt;span class="nb"&gt;is_record&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;Bot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bot&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&gt;&lt;/span&gt;
+        &lt;span class="k"&gt;receive&lt;/span&gt;
+    	&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;tcp&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;_,&lt;/span&gt; &lt;span class="o"&gt;&lt;&lt;&lt;/span&gt;&lt;span class="nv"&gt;Packet&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;binary&lt;/span&gt;&lt;span class="o"&gt;&gt;&gt;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="o"&gt;-&gt;&lt;/span&gt;
+    	    &lt;span class="nv"&gt;Event&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;unpickle&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;Bot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;Packet&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    	    &lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;Bot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;handle&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;Bot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;Event&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+    	&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;script&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;Event&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="o"&gt;-&gt;&lt;/span&gt;
+    	    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="nv"&gt;Event&lt;/span&gt; &lt;span class="k"&gt;of&lt;/span&gt;
+    		&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;tables&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;H&lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="nv"&gt;T&lt;/span&gt;&lt;span class="p"&gt;]}&lt;/span&gt; &lt;span class="o"&gt;-&gt;&lt;/span&gt;
+    		    &lt;span class="nb"&gt;trace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;Bot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;95&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&quot;Event: {tables, [&lt;/span&gt;&lt;span class="si"&gt;~w&lt;/span&gt;&lt;span class="s"&gt;, &lt;/span&gt;&lt;span class="si"&gt;~w&lt;/span&gt;&lt;span class="s"&gt; more]}&quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    			  &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;H&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;length&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;T&lt;/span&gt;&lt;span class="p"&gt;)]);&lt;/span&gt;
+    		&lt;span class="p"&gt;_&lt;/span&gt; &lt;span class="o"&gt;-&gt;&lt;/span&gt;
+    		    &lt;span class="nb"&gt;trace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;Bot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;95&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&quot;Event: &lt;/span&gt;&lt;span class="si"&gt;~p&lt;/span&gt;&lt;span class="s"&gt;&quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;Event&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+    	    &lt;span class="k"&gt;end&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    	    &lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;Bot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;handle&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;Bot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;Event&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+    	&lt;span class="nv"&gt;Any&lt;/span&gt; &lt;span class="o"&gt;-&gt;&lt;/span&gt;
+    	    &lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;Bot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;handle&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;Bot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;Any&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+        &lt;span class="k"&gt;end&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This code just works. It collects network messages, events, timer events, you name it. Posting an event is also easy.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;    &lt;span class="n"&gt;post&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;Bot&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;Event&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&gt;&lt;/span&gt;
+        &lt;span class="n"&gt;self&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;!&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;script&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nv"&gt;Event&lt;/span&gt;&lt;span class="p"&gt;}.&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;I tried implementing this scheme using &lt;a href="http://www.haskell.org/ghc/docs/latest/html/libraries/stm/Control-Concurrent-STM-TChan.html"&gt;&lt;span class="caps"&gt;STM&lt;/span&gt;.TChan&lt;/a&gt; but failed. The best example of this is my logger. The most natural way to implement logging seemed to be by reading from a TChan in a loop and printing out the messages. I launched several thousand threads, all logging to the single TChan. Bummer, I think I ran out of memory.&lt;/p&gt;
 &lt;p&gt;Follow-up discussions on Haskell-Cafe narrowed the issue down to the logger thread not being able to keep up. I took this for granted and implemented a single-slot logger. This worked and reduced memory consumption drastically but I believe introduced locking delays in other places since threads could only log sequentially.&lt;/p&gt;
-
-&lt;p&gt;Erlang provides the &lt;span&gt;disk&lt;em&gt;log module]&lt;a href='http://www.erlang.se/doc/doc-5.4.12/lib/kernel-2.10.12/doc/html/disk_log.html'&gt;14&lt;/a&gt; that logs to disk anything sent to the logger process. The logger can be located anywhere on a network of Erlang nodes (physical machines or VMs) but I&#8217;m using a local logger without any major problems so far.&lt;/em&gt;&lt;/span&gt;&lt;/p&gt;
-
+&lt;p&gt;Erlang provides the &lt;a href="http://www.erlang.se/doc/doc-5.4.12/lib/kernel-2.10.12/doc/html/disk_log.html"&gt;disk_log module&lt;/a&gt; that logs to disk anything sent to the logger process. The logger can be located anywhere on a network of Erlang nodes (physical machines or VMs) but I&#8217;m using a local logger without any major problems so far.&lt;/p&gt;
 &lt;p&gt;Could the difference be due to differences in the scheduler implementation?&lt;/p&gt;
-
 &lt;p&gt;The Erlang version of my code has a separate socket reader process that sends incoming packets as messages to the process that opened the socket. This is the standard way of doing things in Erlang. Network packets get collected in the same message queue as everything else. It&#8217;s the natural way and the right way.&lt;/p&gt;
-
 &lt;p&gt;I tried to do the same with Haskell by attaching a TChan mailbox to my threads. Big bummer, I quickly ran out of memory. The socket readers were quick to post messages to the TChan but the threads reading from it apparently weren&#8217;t quick enough. This is my unscientific take on it.&lt;/p&gt;
-
 &lt;p&gt;Moving to single-slot mailboxes did wonders to lower memory consumption but introduced other problems since I could no longer send a message to myself from the poker bot thread. The socket reader would stick a packet into a TMVar and then the poker bot code would try to stick one in and block. This caused a deadlock since the bot code would never finish to let the thread loop empty the TMVar.&lt;/p&gt;
-
-&lt;p&gt;I ended up creating a bunch of single-slot mailboxes, one for the socket reader, one for messages posted from the poker bot code, one for outside messages like &#8220;quit now&#8221;, etc. Thanks to STM the code to read any available messages was elegant and probably efficient too but overall the approach looks hackish.&lt;/p&gt;
-&lt;notextile&gt;&lt;div class='highlight'&gt;&lt;pre&gt;        &lt;span class='n'&gt;fetch&lt;/span&gt; &lt;span class='ow'&gt;::&lt;/span&gt; &lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='kt'&gt;ScriptState&lt;/span&gt; &lt;span class='n'&gt;b&lt;/span&gt;&lt;span class='p'&gt;)&lt;/span&gt; &lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='kt'&gt;Integer&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='kt'&gt;Integer&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='kt'&gt;Integer&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='kt'&gt;Event&lt;/span&gt;&lt;span class='p'&gt;))&lt;/span&gt;
-        &lt;span class='n'&gt;fetch&lt;/span&gt; &lt;span class='ow'&gt;=&lt;/span&gt; 
-            &lt;span class='kr'&gt;do&lt;/span&gt; &lt;span class='n'&gt;w&lt;/span&gt; &lt;span class='ow'&gt;&lt;-&lt;/span&gt; &lt;span class='n'&gt;get&lt;/span&gt;
-               &lt;span class='n'&gt;liftIO&lt;/span&gt; &lt;span class='o'&gt;$&lt;/span&gt; &lt;span class='n'&gt;atomically&lt;/span&gt; &lt;span class='o'&gt;$&lt;/span&gt; 
-                      &lt;span class='n'&gt;readQ&lt;/span&gt; &lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='n'&gt;killbox&lt;/span&gt; &lt;span class='n'&gt;w&lt;/span&gt;&lt;span class='p'&gt;)&lt;/span&gt; &lt;span class='p'&gt;`&lt;/span&gt;&lt;span class='n'&gt;orElse&lt;/span&gt;&lt;span class='p'&gt;`&lt;/span&gt;
-                      &lt;span class='n'&gt;readQ&lt;/span&gt; &lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='n'&gt;scriptbox&lt;/span&gt; &lt;span class='n'&gt;w&lt;/span&gt;&lt;span class='p'&gt;)&lt;/span&gt; &lt;span class='p'&gt;`&lt;/span&gt;&lt;span class='n'&gt;orElse&lt;/span&gt;&lt;span class='p'&gt;`&lt;/span&gt;
-                      &lt;span class='n'&gt;readQ&lt;/span&gt; &lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='n'&gt;timerbox&lt;/span&gt; &lt;span class='n'&gt;w&lt;/span&gt;&lt;span class='p'&gt;)&lt;/span&gt; &lt;span class='p'&gt;`&lt;/span&gt;&lt;span class='n'&gt;orElse&lt;/span&gt;&lt;span class='p'&gt;`&lt;/span&gt;
-                      &lt;span class='n'&gt;readQ&lt;/span&gt; &lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='n'&gt;netbox&lt;/span&gt; &lt;span class='n'&gt;w&lt;/span&gt;&lt;span class='p'&gt;)&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;&lt;/notextile&gt;
-&lt;p&gt;I had to replace this code with some other hack to be able to run retainer profiling since it does not work with STM.&lt;/p&gt;
-
+&lt;p&gt;I ended up creating a bunch of single-slot mailboxes, one for the socket reader, one for messages posted from the poker bot code, one for outside messages like &#8220;quit now&#8221;, etc. Thanks to &lt;span class="caps"&gt;STM&lt;/span&gt; the code to read any available messages was elegant and probably efficient too but overall the approach looks hackish.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;        &lt;span class="n"&gt;fetch&lt;/span&gt; &lt;span class="ow"&gt;::&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;ScriptState&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;Integer&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;Integer&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;Integer&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;Event&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+        &lt;span class="n"&gt;fetch&lt;/span&gt; &lt;span class="ow"&gt;=&lt;/span&gt; 
+            &lt;span class="kr"&gt;do&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt; &lt;span class="ow"&gt;&lt;-&lt;/span&gt; &lt;span class="n"&gt;get&lt;/span&gt;
+               &lt;span class="n"&gt;liftIO&lt;/span&gt; &lt;span class="o"&gt;$&lt;/span&gt; &lt;span class="n"&gt;atomically&lt;/span&gt; &lt;span class="o"&gt;$&lt;/span&gt; 
+                      &lt;span class="n"&gt;readQ&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;killbox&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;`&lt;/span&gt;&lt;span class="n"&gt;orElse&lt;/span&gt;&lt;span class="p"&gt;`&lt;/span&gt;
+                      &lt;span class="n"&gt;readQ&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;scriptbox&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;`&lt;/span&gt;&lt;span class="n"&gt;orElse&lt;/span&gt;&lt;span class="p"&gt;`&lt;/span&gt;
+                      &lt;span class="n"&gt;readQ&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;timerbox&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;`&lt;/span&gt;&lt;span class="n"&gt;orElse&lt;/span&gt;&lt;span class="p"&gt;`&lt;/span&gt;
+                      &lt;span class="n"&gt;readQ&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;netbox&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I had to replace this code with some other hack to be able to run retainer profiling since it does not work with &lt;span class="caps"&gt;STM&lt;/span&gt;.&lt;/p&gt;
 &lt;p&gt;I also had issues with asynchronous exceptions (killThread blocking?), including crashes with a threaded runtime.&lt;/p&gt;
-
-&lt;p&gt;&#8212; 4. Libraries &#8212;&lt;/p&gt;
-
-&lt;p&gt;&#8212; 4.1 Serialization &#8212;&lt;/p&gt;
-
-&lt;p&gt;This horse has been beaten to death by now. I would just say that thinking of Haskell binary IO and serialization makes me cringe. Binary IO is so damn easy and efficient with Erlang that I look forward to it. Specially after I wrote the Erlang version of the Pickler Combinators. Please refer to Bit Syntax for more information. I would give an arm and a leg to stick to binary IO in Erlang rather than process XML or other textual messages, just because it&#8217;s so easy.&lt;/p&gt;
-
-&lt;p&gt;With Haskell I tried reading network packets as a list of bytes which was elegant but not very efficient. I also tried serialization base don Ptr Word8 and IOUArray. I don&#8217;t think there&#8217;s a lot of difference between the two efficiency-wise. allocaBytes is implemented on top of byte arrays, for example.&lt;/p&gt;
-&lt;notextile&gt;&lt;div class='highlight'&gt;&lt;pre&gt;    &lt;span class='n'&gt;allocaBytes&lt;/span&gt; &lt;span class='ow'&gt;::&lt;/span&gt; &lt;span class='kt'&gt;Int&lt;/span&gt; &lt;span class='ow'&gt;-&gt;&lt;/span&gt; &lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='kt'&gt;Ptr&lt;/span&gt; &lt;span class='n'&gt;a&lt;/span&gt; &lt;span class='ow'&gt;-&gt;&lt;/span&gt; &lt;span class='kt'&gt;IO&lt;/span&gt; &lt;span class='n'&gt;b&lt;/span&gt;&lt;span class='p'&gt;)&lt;/span&gt; &lt;span class='ow'&gt;-&gt;&lt;/span&gt; &lt;span class='kt'&gt;IO&lt;/span&gt; &lt;span class='n'&gt;b&lt;/span&gt;
-    &lt;span class='n'&gt;allocaBytes&lt;/span&gt; &lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='kt'&gt;I&lt;/span&gt;&lt;span class='o'&gt;#&lt;/span&gt; &lt;span class='n'&gt;size&lt;/span&gt;&lt;span class='p'&gt;)&lt;/span&gt; &lt;span class='n'&gt;action&lt;/span&gt; &lt;span class='ow'&gt;=&lt;/span&gt; &lt;span class='kt'&gt;IO&lt;/span&gt; &lt;span class='o'&gt;$&lt;/span&gt; &lt;span class='nf'&gt;\&lt;/span&gt; &lt;span class='n'&gt;s&lt;/span&gt; &lt;span class='ow'&gt;-&gt;&lt;/span&gt;
-         &lt;span class='kr'&gt;case&lt;/span&gt; &lt;span class='n'&gt;newPinnedByteArray&lt;/span&gt;&lt;span class='o'&gt;#&lt;/span&gt; &lt;span class='n'&gt;size&lt;/span&gt; &lt;span class='n'&gt;s&lt;/span&gt;      &lt;span class='kr'&gt;of&lt;/span&gt; &lt;span class='p'&gt;{&lt;/span&gt; &lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='o'&gt;#&lt;/span&gt; &lt;span class='n'&gt;s&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='n'&gt;mbarr&lt;/span&gt;&lt;span class='o'&gt;#&lt;/span&gt; &lt;span class='o'&gt;#&lt;/span&gt;&lt;span class='p'&gt;)&lt;/span&gt; &lt;span class='ow'&gt;-&gt;&lt;/span&gt;
-         &lt;span class='kr'&gt;case&lt;/span&gt; &lt;span class='n'&gt;unsafeFreezeByteArray&lt;/span&gt;&lt;span class='o'&gt;#&lt;/span&gt; &lt;span class='n'&gt;mbarr&lt;/span&gt;&lt;span class='o'&gt;#&lt;/span&gt; &lt;span class='n'&gt;s&lt;/span&gt; &lt;span class='kr'&gt;of&lt;/span&gt; &lt;span class='p'&gt;{&lt;/span&gt; &lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='o'&gt;#&lt;/span&gt; &lt;span class='n'&gt;s&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='n'&gt;barr&lt;/span&gt;&lt;span class='o'&gt;#&lt;/span&gt;  &lt;span class='o'&gt;#&lt;/span&gt;&lt;span class='p'&gt;)&lt;/span&gt; &lt;span class='ow'&gt;-&gt;&lt;/span&gt;
-         &lt;span class='kr'&gt;let&lt;/span&gt; &lt;span class='n'&gt;addr&lt;/span&gt; &lt;span class='ow'&gt;=&lt;/span&gt; &lt;span class='kt'&gt;Ptr&lt;/span&gt; &lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='n'&gt;byteArrayContents&lt;/span&gt;&lt;span class='o'&gt;#&lt;/span&gt; &lt;span class='n'&gt;barr&lt;/span&gt;&lt;span class='o'&gt;#&lt;/span&gt;&lt;span class='p'&gt;)&lt;/span&gt; &lt;span class='kr'&gt;in&lt;/span&gt;
-         &lt;span class='kr'&gt;case&lt;/span&gt; &lt;span class='n'&gt;action&lt;/span&gt; &lt;span class='n'&gt;addr&lt;/span&gt;    &lt;span class='kr'&gt;of&lt;/span&gt; &lt;span class='p'&gt;{&lt;/span&gt; &lt;span class='kt'&gt;IO&lt;/span&gt; &lt;span class='n'&gt;action&lt;/span&gt; &lt;span class='ow'&gt;-&gt;&lt;/span&gt;
-         &lt;span class='kr'&gt;case&lt;/span&gt; &lt;span class='n'&gt;action&lt;/span&gt; &lt;span class='n'&gt;s&lt;/span&gt;       &lt;span class='kr'&gt;of&lt;/span&gt; &lt;span class='p'&gt;{&lt;/span&gt; &lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='o'&gt;#&lt;/span&gt; &lt;span class='n'&gt;s&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='n'&gt;r&lt;/span&gt; &lt;span class='o'&gt;#&lt;/span&gt;&lt;span class='p'&gt;)&lt;/span&gt; &lt;span class='ow'&gt;-&gt;&lt;/span&gt;
-         &lt;span class='kr'&gt;case&lt;/span&gt; &lt;span class='n'&gt;touch&lt;/span&gt;&lt;span class='o'&gt;#&lt;/span&gt; &lt;span class='n'&gt;barr&lt;/span&gt;&lt;span class='o'&gt;#&lt;/span&gt; &lt;span class='n'&gt;s&lt;/span&gt; &lt;span class='kr'&gt;of&lt;/span&gt; &lt;span class='p'&gt;{&lt;/span&gt; &lt;span class='n'&gt;s&lt;/span&gt; &lt;span class='ow'&gt;-&gt;&lt;/span&gt;
-         &lt;span class='p'&gt;(&lt;/span&gt;&lt;span class='o'&gt;#&lt;/span&gt; &lt;span class='n'&gt;s&lt;/span&gt;&lt;span class='p'&gt;,&lt;/span&gt; &lt;span class='n'&gt;r&lt;/span&gt; &lt;span class='o'&gt;#&lt;/span&gt;&lt;span class='p'&gt;)&lt;/span&gt;
-      &lt;span class='p'&gt;}}}}}&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;&lt;/notextile&gt;
+&lt;h6&gt;Serialization&lt;/h6&gt;
+&lt;p&gt;This horse has been beaten to death by now. I would just say that thinking of Haskell binary IO and serialization makes me cringe. Binary IO is so damn easy and efficient with Erlang that I look forward to it. Specially after I wrote the Erlang version of the Pickler Combinators. Please refer to Bit Syntax for more information. I would give an arm and a leg to stick to binary IO in Erlang rather than process &lt;span class="caps"&gt;XML&lt;/span&gt; or other textual messages, just because it&#8217;s so easy.&lt;/p&gt;
+&lt;p&gt;With Haskell I tried reading network packets as a list of bytes  which was elegant but not very efficient. I also tried serialization base don Ptr Word8 and IOUArray. I don&#8217;t think there&#8217;s a lot of difference between the two efficiency-wise. allocaBytes is implemented on top of byte arrays, for example.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;    &lt;span class="n"&gt;allocaBytes&lt;/span&gt; &lt;span class="ow"&gt;::&lt;/span&gt; &lt;span class="kt"&gt;Int&lt;/span&gt; &lt;span class="ow"&gt;-&gt;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;Ptr&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="ow"&gt;-&gt;&lt;/span&gt; &lt;span class="kt"&gt;IO&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="ow"&gt;-&gt;&lt;/span&gt; &lt;span class="kt"&gt;IO&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;
+    &lt;span class="n"&gt;allocaBytes&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;I&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;action&lt;/span&gt; &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="kt"&gt;IO&lt;/span&gt; &lt;span class="o"&gt;$&lt;/span&gt; &lt;span class="nf"&gt;\&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt; &lt;span class="ow"&gt;-&gt;&lt;/span&gt;
+         &lt;span class="kr"&gt;case&lt;/span&gt; &lt;span class="n"&gt;newPinnedByteArray&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="n"&gt;size&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;      &lt;span class="kr"&gt;of&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mbarr&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="o"&gt;#&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="ow"&gt;-&gt;&lt;/span&gt;
+         &lt;span class="kr"&gt;case&lt;/span&gt; &lt;span class="n"&gt;unsafeFreezeByteArray&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="n"&gt;mbarr&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt; &lt;span class="kr"&gt;of&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;barr&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt;  &lt;span class="o"&gt;#&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="ow"&gt;-&gt;&lt;/span&gt;
+         &lt;span class="kr"&gt;let&lt;/span&gt; &lt;span class="n"&gt;addr&lt;/span&gt; &lt;span class="ow"&gt;=&lt;/span&gt; &lt;span class="kt"&gt;Ptr&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;byteArrayContents&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="n"&gt;barr&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="kr"&gt;in&lt;/span&gt;
+         &lt;span class="kr"&gt;case&lt;/span&gt; &lt;span class="n"&gt;action&lt;/span&gt; &lt;span class="n"&gt;addr&lt;/span&gt;    &lt;span class="kr"&gt;of&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="kt"&gt;IO&lt;/span&gt; &lt;span class="n"&gt;action&lt;/span&gt; &lt;span class="ow"&gt;-&gt;&lt;/span&gt;
+         &lt;span class="kr"&gt;case&lt;/span&gt; &lt;span class="n"&gt;action&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;       &lt;span class="kr"&gt;of&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt; &lt;span class="o"&gt;#&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="ow"&gt;-&gt;&lt;/span&gt;
+         &lt;span class="kr"&gt;case&lt;/span&gt; &lt;span class="n"&gt;touch&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="n"&gt;barr&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt; &lt;span class="kr"&gt;of&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt; &lt;span class="ow"&gt;-&gt;&lt;/span&gt;
+         &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;r&lt;/span&gt; &lt;span class="o"&gt;#&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+      &lt;span class="p"&gt;}}}}}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;I would preferred serialization on top of byte arrays since you can inspect them and see the data. There&#8217;s no version of Storable for arrays, though. Not unless you use a Storable Array and then it can only be an array of that instance of Storable.&lt;/p&gt;
-
-&lt;p&gt;&#8212; 4.2 Inspecting the environment &#8212;&lt;/p&gt;
-
+&lt;h6&gt;Inspecting the environment&lt;/h6&gt;
 &lt;p&gt;Erlang has plenty of tools to inspect your environment. You can get the number of processes running, a list of process ids, state of each process, etc. This very convenient for debugging.&lt;/p&gt;
-
-&lt;p&gt;&#8212; 4.3 Other libraries &#8212;&lt;/p&gt;
-
+&lt;h6&gt;Other libraries&lt;/h6&gt;
 &lt;p&gt;I can log any Erlang term to disk, store it in a database, etc. This makes my life significantly easier.&lt;/p&gt;
-
-&lt;p&gt;&#8212; 5. Summary &#8212;&lt;/p&gt;
-
+&lt;h6&gt;Conclusion&lt;/h6&gt;
 &lt;p&gt;I was able to finish the Erlang version 10 times faster and with 1/2 the code. Even if I cut the 10-11 weeks spent on the Haskell version in half to account for the learning curve, I would still come out way ahead with Erlang.&lt;/p&gt;
-
-&lt;p&gt;This is due to language issues where static typing and records are working against me. This also due to the many GHC/runtime issues that I stumbled upon, specially with regards to concurrency, networking and binary IO. Last but not least, this is due to the much better library support on the Erlang side.&lt;/p&gt;
-
+&lt;p&gt;This is due to language issues where static typing and records are working against me. This also due to the many &lt;span class="caps"&gt;GHC&lt;/span&gt;/runtime issues that I stumbled upon, specially with regards to concurrency, networking and binary IO. Last but not least, this is due to the much better library support on the Erlang side.&lt;/p&gt;
 &lt;p&gt;I would not have been able to get the Haskell version as far as I did without the enthusiastic support from Haskell-Cafe, #haskell and the Haskell Headquarters. I can&#8217;t even imagine one of the chief Erlang designers logging in to my machine to troubleshoot some issues. Simon Marlow did! And that brings up another issue&#8230;&lt;/p&gt;
-
-&lt;p&gt;Ericsson has a whole team of developers hacking the Erlang distribution all day. I don&#8217;t know the size of the team but I would think 10-15 people, maybe more. My understanding is that a separate bigger team hacks away at the OTP libraries. The flagship Ericsson AXD 301 switch has something like 1.7 million lines of Erlang code and the team that worked on it consisted of 100-300 people.&lt;/p&gt;
-
-&lt;p&gt;You cannot compare the weight of the biggest telco thrown behind Erlang to the weight of Simon Marlow and Simon Peyton-Jones behind GHC, although the two Simons are without a trace of doubt VERY HEAVY.&lt;/p&gt;
-
-&lt;p&gt;I would love to be able to hack away at GHC to bring it on par with Erlang. I&#8217;m not dumb and I learn very quickly. Still, it&#8217;s probably a loosing proposition. Just like specialist and narrowly focused companies dominate their market niches, the specialist languages win the day.&lt;/p&gt;
-
+&lt;p&gt;Ericsson has a whole team of developers hacking the Erlang distribution all day. I don&#8217;t know the size of the team but I would think 10-15 people, maybe more. My understanding is that a separate bigger team hacks away at the &lt;span class="caps"&gt;OTP&lt;/span&gt; libraries. The flagship Ericsson &lt;span class="caps"&gt;AXD&lt;/span&gt; 301 switch has something like 1.7 million lines of Erlang code and the team that worked on it consisted of 100-300 people.&lt;/p&gt;
+&lt;p&gt;You cannot compare the weight of the biggest telco thrown behind Erlang to the weight of Simon Marlow and Simon Peyton-Jones behind &lt;span class="caps"&gt;GHC&lt;/span&gt;, although the two Simons are without a trace of doubt &lt;span class="caps"&gt;VERY&lt;/span&gt; &lt;span class="caps"&gt;HEAVY&lt;/span&gt;.&lt;/p&gt;
+&lt;p&gt;I would love to be able to hack away at &lt;span class="caps"&gt;GHC&lt;/span&gt; to bring it on par with Erlang. I&#8217;m not dumb and I learn very quickly. Still, it&#8217;s probably a loosing proposition. Just like specialist and narrowly focused companies dominate their market niches, the specialist languages win the day.&lt;/p&gt;
 &lt;p&gt;Erlang is the specialist language narrowly focused on networked, highly-scalable concurrent applications. I doubt any other language can beat Erlang at what it does. Haskell is also a specialist language. Do I hear cries of disbelief? How come?&lt;/p&gt;
-
-&lt;p&gt;Haskell is a specialist language for doing extremely complex things that few outside of the tight-knit Haskell PhD. community will understand or (heresy!) even care about. Also, things-probably-could-be-done-much-simpler (TM). Think Djinn, Zipper-based file server/OS, GADTs, Fundeps, Existential types, Comonads, Delimited Continuations, Yampa.&lt;/p&gt;
-
+&lt;p&gt;Haskell is a specialist language for doing extremely complex things that few outside of the tight-knit Haskell PhD. community will understand or (heresy!) even care about. Also, things-probably-could-be-done-much-simpler&#8482;. Think Djinn, Zipper-based file server/OS, GADTs, Fundeps, Existential types, Comonads, Delimited Continuations, Yampa.&lt;/p&gt;
 &lt;p&gt;That said, I love Haskell because it forever twisted my brain into a different shape and I think I&#8217;m overall a much better coder now. I also have a much better understanding of why LexiFi was implemented in OCaml while based on the Composing Financial Contracts (Haskell) paper.&lt;/p&gt;
-
-&lt;p&gt;&#8212; 6. Forward-looking statements &#8212;&lt;/p&gt;
-
+&lt;h6&gt;Forward-looking statements&lt;/h6&gt;
 &lt;p&gt;I paid my dues. I felt the pain. I fought the fight but did not win. I drank the poison Kool-aid. I still have an itch to try to fit Haskell into trading or some other domain like AI or robotics but it seems to me that some things in Haskell are unnecessarily complex, to the detriment of my productivity.&lt;/p&gt;
-
 &lt;p&gt;I started looking at Yampa a few weeks back and my interest picked up significantly after Frag was released. I would like to make the Frag/Quake monsters super-intelligent, for example. Still, looking at Yampa I cannot comprehend why coding robotics has to be so complex.&lt;/p&gt;
-
 &lt;p&gt;My bet is that doing the same on top of a highly concurrent architecture and message-passing would be much easier if less declarative. To that end I will try to port Frag to Erlang and see what comes out. I suspect that I will be proven right.&lt;/p&gt;
-
-&lt;p&gt;&#8212; 7. Haskell-Cafe discussions related to my project &#8212;&lt;/p&gt;
-
-&lt;p&gt;&#8212; 7.2 Design &#8212;&lt;/p&gt;
-
+&lt;h6&gt;Haskell-Cafe discussions related to my project&lt;/h6&gt;
+&lt;p&gt;Design:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href='http://www.nabble.com/Joels-Time-Leak-t821098.html'&gt;Joel&#8217;s time Leak&lt;/a&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;a href='http://www.nabble.com/binary-IO-t809119.html'&gt;Binary IO&lt;/a&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;a href='http://www.nabble.com/Killer-pickler-combinators-(was-Time-leak'&gt;Killer Pickler Combinators&lt;/a&gt;-t782253.html)&lt;/li&gt;
-
-&lt;li&gt;&lt;a href='http://www.nabble.com/Haskell-Speed-t798929.html'&gt;Haskell speed&lt;/a&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;a href='http://www.nabble.com/Optimizing-a-high-traffic-network-architecture-t742725.html'&gt;Optimizing a high-traffic network architecture&lt;/a&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;a href='http://www.nabble.com/STM%2C-Concurrent-Haskell-and-network-clients-%28long%2C-code%29-t660401.html'&gt;Concurrent Haskell and network clients&lt;/a&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;a href='http://www.nabble.com/Number-of-outstanding-messages-in-Chan-or-TChan-t685529.html'&gt;Number of outstanding messages in a TChan&lt;/a&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;a href='http://www.nabble.com/Bringing-Erlang-to-Haskell-t728094.html'&gt;Bringing Erlang to Haskell&lt;/a&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;a href='http://www.nabble.com/Unbound-threads-and-FFI-t741787.html'&gt;Unbound threads and FFI&lt;/a&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;a href='http://www.nabble.com/Battling-laziness-t754457.html'&gt;Battling laziness&lt;/a&gt;&lt;/li&gt;
+	&lt;li&gt;[Joel&#8217;s time Leak](http://www.nabble.com/Joels-Time-Leak-t821098.html)&lt;/li&gt;
+	&lt;li&gt;[Binary IO](http://www.nabble.com/binary-IO-t809119.html)&lt;/li&gt;
+	&lt;li&gt;[Killer Pickler Combinators](http://www.nabble.com/Killer-pickler-combinators-(was-Time-leak)-t782253.html)&lt;/li&gt;
+	&lt;li&gt;[Haskell speed](http://www.nabble.com/Haskell-Speed-t798929.html)&lt;/li&gt;
+	&lt;li&gt;[Optimizing a high-traffic network architecture](http://www.nabble.com/Optimizing-a-high-traffic-network-architecture-t742725.html)&lt;/li&gt;
+	&lt;li&gt;[Concurrent Haskell and network clients](http://www.nabble.com/&lt;span class="caps"&gt;STM&lt;/span&gt;%2C-Concurrent-Haskell-and-network-clients-%28long%2C-code%29-t660401.html)&lt;/li&gt;
+	&lt;li&gt;[Number of outstanding messages in a TChan](http://www.nabble.com/Number-of-outstanding-messages-in-Chan-or-TChan-t685529.html)&lt;/li&gt;
+	&lt;li&gt;[Bringing Erlang to Haskell](http://www.nabble.com/Bringing-Erlang-to-Haskell-t728094.html)&lt;/li&gt;
+	&lt;li&gt;[Unbound threads and &lt;span class="caps"&gt;FFI&lt;/span&gt;](http://www.nabble.com/Unbound-threads-and-&lt;span class="caps"&gt;FFI&lt;/span&gt;-t741787.html)&lt;/li&gt;
+	&lt;li&gt;[Battling laziness](http://www.nabble.com/Battling-laziness-t754457.html)&lt;/li&gt;
 &lt;/ul&gt;
-
-&lt;p&gt;&#8212; 7.1 Runtime issues &#8212;&lt;/p&gt;
-
+&lt;p&gt;Runtime issues:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;a href='http://www.nabble.com/Spurious-program-crashes-t565345.html'&gt;Spurious program crashes&lt;/a&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;a href='http://www.nabble.com/syscall%2C-sigpause-and-EINTR-on-Mac-OSX-t719940.html'&gt;syscall, sigpause and EINTR on Mac OSX&lt;/a&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;a href='http://www.nabble.com/GHC-int'&gt;GHC Internal error: Traverse weak&lt;em&gt;pt&lt;/em&gt;list not WEAK&lt;/a&gt;&lt;/li&gt;
+	&lt;li&gt;[Spurious program crashes](http://www.nabble.com/Spurious-program-crashes-t565345.html)&lt;/li&gt;
+	&lt;li&gt;[syscall, sigpause and &lt;span class="caps"&gt;EINTR&lt;/span&gt; on Mac &lt;span class="caps"&gt;OSX&lt;/span&gt;](http://www.nabble.com/syscall%2C-sigpause-and-&lt;span class="caps"&gt;EINTR&lt;/span&gt;-on-Mac-&lt;span class="caps"&gt;OSX&lt;/span&gt;-t719940.html)&lt;/li&gt;
+	&lt;li&gt;[&lt;span class="caps"&gt;GHC&lt;/span&gt; Internal error: Traverse weak_pt_list not &lt;span class="caps"&gt;WEAK&lt;/span&gt;](http://www.nabble.com/&lt;span class="caps"&gt;GHC&lt;/span&gt;-int)&lt;/li&gt;
 &lt;/ul&gt;</content>
  </entry>
  

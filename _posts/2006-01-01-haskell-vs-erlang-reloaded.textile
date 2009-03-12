@@ -3,32 +3,39 @@ layout: post
 title: Haskell vs Erlang, Reloaded
 ---
 
-# {{ page.title }}
+h3. {{ page.title }}
 
-<p class="meta">01 Jan 2006 - Tenerife</p>
+p(meta). 01 Jan 2006 - Tenerife
 
-On Dec 29, 2005, at 8:22 AM, [Simon Peyton-Jones][1] wrote in response to me:
-> > Using [Haskell][2] for this networking app forced me to focus on all the issues but the business logic. Type constraints, binary IO and serialization, minimizing memory use and fighting laziness, timers, tweaking concurrency and setting up message channels, you name it.
-> That's a disappointing result. Mostly I think Haskell lets you precisely focus on the logic of your program, because lots else is taken care of behind the scenes. You found precisely the reverse.
-> It'd be interesting to understand which of these issues are 
-> - language issues
-> - library issues
-> - compiler/run-time issues
-> My (ill-informed) hypothesis is that better libraries would have solved much of your problems. A good example is a fast, generic serialization library.
-> If you felt able (sometime) to distill your experience under headings like the above, only more concretely and precisely, I think it might help to motivate Haskellers to start solving them.
+On Dec 29, 2005, at 8:22 AM, "Simon Peyton-Jones":1 wrote in response to me:
+<blockquote>
+Using "Haskell":2 for this networking app forced me to focus on all the issues but the business logic. Type constraints, binary IO and serialization, minimizing memory use and fighting laziness, timers, tweaking concurrency and setting up message channels, you name it.
 
-Please browse through the [original Haskell Postmortem thread][3] for some background info. Then read this post and head to the thread describing my [Erlang rewrite experience][4].
+That's a disappointing result. Mostly I think Haskell lets you precisely focus on the logic of your program, because lots else is taken care of behind the scenes. You found precisely the reverse.
 
-[1]: http://research.microsoft.com/Users/simonpj/
-[2]: http://www.haskell.org
-[3]: http://www.nabble.com/Project-postmortem-t570675.html
-[4]: http://www.erlang.org/ml-archive/erlang-questions/200601/msg00003.html
+It'd be interesting to understand which of these issues are 
 
-Other threads relevant to my experience, including crashes and [Glasgow Haskell Compiler (GHC)][5] runtime issues included at the bottom of this post.
+ - language issues
+ - library issues
+ - compiler/run-time issues
+ 
+My (ill-informed) hypothesis is that better libraries would have solved much of your problems. A good example is a fast, generic serialization library.
 
-[5]: http://www.haskell.org/ghc
+If you felt able (sometime) to distill your experience under headings like the above, only more concretely and precisely, I think it might help to motivate Haskellers to start solving them.
+</blockquote>
 
---- 1. Goals ---
+Please browse through the "original Haskell Postmortem thread":3 for background info. Then read this post and head to the thread describing my "Erlang rewrite experience":4.
+
+[1]http://research.microsoft.com/Users/simonpj/
+[2]http://www.haskell.org
+[3]http://www.nabble.com/Project-postmortem-t570675.html
+[4]http://www.erlang.org/ml-archive/erlang-questions/200601/msg00003.html
+
+Other threads relevant to my experience, including crashes and "Glasgow Haskell Compiler (GHC)":5 runtime issues included at the bottom of this post.
+
+[5]http://www.haskell.org/ghc
+
+h6. Goals
 
 The goal of my project was to be able to thoroughly test a poker server using poker bots. Each poker bot was to to excercise different parts of the server by talking the poker protocol consisting of 150+ binary messages. The poker server itself is written in C++ and runs on Windows.
 
@@ -36,22 +43,22 @@ Easy scripting was an essential requirement since customer's QA techs were not 
 
 This app is all about binary IO, thousands of threads/processes and easy serialization. All I ever wanted to do was send packets back and forth, analyze them and have thousands of poker bots running on my machine doing same. Lofty but simple goal :-). Little did I know!
 
---- 2. Summary ---
+h6. Summary
 
-I spent a few months writing a poker server in Erlang but fell in love with Haskell after reading [Simon's Composing Financial Contracts][6] paper. I thought I would do this project in Haskell since my customer expressed a concern about QA techs having to learn Erlang and the Haskell syntax looked clean and elegant.
+I spent a few months writing a poker server in Erlang but fell in love with Haskell after reading "Simon's Composing Financial Contracts":6 paper. When I was offered to write a stress tool for an existing poker server, I thought I would write it in Haskell since my customer expressed a concern about QA techs having to learn Erlang and the Haskell syntax looked clean and elegant.
 
-[6]: http://research.microsoft.com/Users/simonpj/Papers/financial-contracts/contracts-icfp.htm
+[6]http://research.microsoft.com/Users/simonpj/Papers/financial-contracts/contracts-icfp.htm
 
 Overall, I spent 10-11 weeks on the Haskell version of the project. The end result did not turn out as elegant as I wanted it to be and wasn't easy on the QA techs. They told me, in retrospect, that the Erlang code was easier to understand and they preferred it.
 
 It took me less than 1 week to rewrite the app in Erlang. It's the end of that week and I'm already way past the state of the Haskell version. The Erlang code, at 3900 lines of code (LOC) including examples, is about 50% of the Haskell code. 
 
-It's far easier to rewrite the code when you know the application, of course, but this rewrite did not involve a lot of domain knowledge. I also [translated to Erlang][7] the original code in the [Pickler Combinators][8] paper.
+It's far easier to rewrite the code when you know the application, of course, but this rewrite did not involve a lot of domain knowledge. I also "translated to Erlang":7 the original code in the "Pickler Combinators":8 paper.
 
-[7]: http://wagerlabs.com/erlang/pickle.erl
-[8]: http://research.microsoft.com/~akenn/fun/picklercombinators.pdf
+[7]http://wagerlabs.com/erlang/pickle.erl
+[8]http://research.microsoft.com/~akenn/fun/picklercombinators.pdf
 
---- 3. Issues ---
+h6. Issues
 
 I spent the first few weeks of the project coding the packets using [Word8] serialization. This proved to be naive as the app ate HUGE amounts of memory. I didn't concern myself with applying strictness at that point. 
 
@@ -59,17 +66,17 @@ I ran into a dead end on Windows for some reason. The app seemed to hang frequen
 
 Running on FreeBSD did not improve things and that's when I started looking deeply into strictness optimizations, etc. After 10-11 weeks with this app I was still nowhere near my goals and I had no guarantee that all my issues would be resolved this this tweak or that.
 
---- 3.1. Runtime issues ---
+h6. Runtime issues
 
 What threw me off almost right away is the large number of GHC runtime issues that I stumbled upon. I was trying to do serialization and heavy concurrency which I learned to take for granted with Erlang but it turned out that this area of GHC has not been exercised enough. 
 
---- 3.2 Records ---
+h6. Records
 
-Haskell is supposed to be about declarative programming. Haskell programs should [look like specifications][9]. Haskell is not supposed to be verbose and [Succinctness is Power][10], according to [Paul Graham][11].
+Haskell is supposed to be about declarative programming. Haskell programs should "look like specifications":9. Haskell is supposed to be succint and "Succinctness is Power":10, according to "Paul Graham":11.
 
-[9]: http://www.cs.chalmers.se/ComputingScience/Research/Functional/Fudgets/haskell-vs-ada-abstract.html
-[10]: http://www.paulgraham.com/power.html
-[11]: http://www.paulgraham.com/
+[9]http://www.cs.chalmers.se/ComputingScience/Research/Functional/Fudgets/haskell-vs-ada-abstract.html
+[10]http://www.paulgraham.com/power.html
+[11]http://www.paulgraham.com/
 
 One area where this breaks down quickly is records. 
 
@@ -108,11 +115,11 @@ The Haskell version requires twice as much lines of code just to initialize the 
 
 I tried creating classes for each "kind" of field and I tried using HList to put these fields together into records. This seems like 1) a terrible hack compared to the Erlang version and 2) not very efficient. I did not get to measuring efficiency with a profiler but I did have GHC run out of memory trying to compile my HList code. SPJ fixed this but I decided not to take it further.
 
---- 3.2 Static typing ---
+h6. Static typing
 
 The records issue is a language issue just like static typing working against me with events. Part of the reason why the Erlang code is 1/2 the size of the Haskell code is that Erlang is dynamically typed. I just post an event of any type I want. I basically post tuples of various sizes but Haskell requires me to either use Dynamic or define the events in advance. 
 
-Yes, I did retrofit the code with data Event a = Foo | Bar | Baz a late in the development cycle but it was a major pain in the rear, specially when it came to my "bot monad". 
+Yes, I did retrofit the code with {%highlight haskell %} data Event a = Foo | Bar | Baz a {% endhighlight %} late in the development cycle but it was a major pain in the rear, specially when it came to my _bot monad_. 
 
 Speaking of monads... There's not a lot of beauty in this:
 
@@ -179,11 +186,11 @@ Erlang is free of side effects (built-in function aside) just like Haskell but p
 
 {% endhighlight %}
 
---- 3.3 Concurrency ---
+h6. Concurrency
 
-Concurrency in Haskell deserves a praise, specially when used together with [STM][12]. Threads are lightweight (1024 bytes on the heap) and easy to launch and STM is a  beautiful thing. Nothing beats being able to just send yourself a message, though. This is something that you can easily do with Erlang.
+Concurrency in Haskell deserves a praise, specially when used together with "STM":12. Threads are lightweight (1024 bytes on the heap) and easy to launch and STM is a  beautiful thing. Nothing beats being able to just send yourself a message, though. This is something that you can easily do with Erlang.
 
-[12]: http://www.haskell.org/~simonmar/papers/stm.pdf
+[12]http://www.haskell.org/~simonmar/papers/stm.pdf
 
 Erlang processes (327 bytes starting up, including heap) come with a message queue and you retrieve messages with "selective receive" that uses the same pattern-matching facilities as everything else.
 
@@ -221,15 +228,15 @@ This code just works. It collects network messages, events, timer events, you na
 
 {% endhighlight %}    
 
-I tried implementing this scheme using [STM.TChan][13] but failed. The best example of this is my logger. The most natural way to implement logging seemed to be by reading from a TChan in a loop and printing out the messages. I launched several thousand threads, all logging to the single TChan. Bummer, I think I ran out of memory. 
+I tried implementing this scheme using "STM.TChan":13 but failed. The best example of this is my logger. The most natural way to implement logging seemed to be by reading from a TChan in a loop and printing out the messages. I launched several thousand threads, all logging to the single TChan. Bummer, I think I ran out of memory. 
 
-[13]: http://www.haskell.org/ghc/docs/latest/html/libraries/stm/Control-Concurrent-STM-TChan.html
+[13]http://www.haskell.org/ghc/docs/latest/html/libraries/stm/Control-Concurrent-STM-TChan.html
 
 Follow-up discussions on Haskell-Cafe narrowed the issue down to the logger thread not being able to keep up. I took this for granted and implemented a single-slot logger. This worked and reduced memory consumption drastically but I believe introduced locking delays in other places since threads could only log sequentially.
 
-Erlang provides the [disk_log module][14] that logs to disk anything sent to the logger process. The logger can be located anywhere on a network of Erlang nodes (physical machines or VMs) but I'm using a local logger without any major problems so far. 
+Erlang provides the "disk_log module":14 that logs to disk anything sent to the logger process. The logger can be located anywhere on a network of Erlang nodes (physical machines or VMs) but I'm using a local logger without any major problems so far. 
 
-[14]: http://www.erlang.se/doc/doc-5.4.12/lib/kernel-2.10.12/doc/html/disk_log.html
+[14]http://www.erlang.se/doc/doc-5.4.12/lib/kernel-2.10.12/doc/html/disk_log.html
 
 Could the difference be due to differences in the scheduler implementation?
 
@@ -258,9 +265,7 @@ I had to replace this code with some other hack to be able to run retainer profi
 
 I also had issues with asynchronous exceptions (killThread blocking?), including crashes with a threaded runtime. 
 
---- 4. Libraries ---
-
---- 4.1 Serialization ---
+h6. Serialization
 
 This horse has been beaten to death by now. I would just say that thinking of Haskell binary IO and serialization makes me cringe. Binary IO is so damn easy and efficient with Erlang that I look forward to it. Specially after I wrote the Erlang version of the Pickler Combinators. Please refer to Bit Syntax for more information. I would give an arm and a leg to stick to binary IO in Erlang rather than process XML or other textual messages, just because it's so easy.
 
@@ -283,15 +288,15 @@ With Haskell I tried reading network packets as a list of bytes  which was elega
 
 I would preferred serialization on top of byte arrays since you can inspect them and see the data. There's no version of Storable for arrays, though. Not unless you use a Storable Array and then it can only be an array of that instance of Storable. 
 
---- 4.2 Inspecting the environment ---
+h6. Inspecting the environment
 
 Erlang has plenty of tools to inspect your environment. You can get the number of processes running, a list of process ids, state of each process, etc. This very convenient for debugging.
 
---- 4.3 Other libraries ---
+h6. Other libraries
 
 I can log any Erlang term to disk, store it in a database, etc. This makes my life significantly easier.
 
---- 5. Summary ---
+h6. Conclusion
 
 I was able to finish the Erlang version 10 times faster and with 1/2 the code. Even if I cut the 10-11 weeks spent on the Haskell version in half to account for the learning curve, I would still come out way ahead with Erlang. 
 
@@ -311,7 +316,7 @@ Haskell is a specialist language for doing extremely complex things that few out
 
 That said, I love Haskell because it forever twisted my brain into a different shape and I think I'm overall a much better coder now. I also have a much better understanding of why LexiFi was implemented in OCaml while based on the Composing Financial Contracts (Haskell) paper. 
 
---- 6. Forward-looking statements ---
+h6. Forward-looking statements
 
 I paid my dues. I felt the pain. I fought the fight but did not win. I drank the poison Kool-aid. I still have an itch to try to fit Haskell into trading or some other domain like AI or robotics but it seems to me that some things in Haskell are unnecessarily complex, to the detriment of my productivity. 
 
@@ -319,9 +324,9 @@ I started looking at Yampa a few weeks back and my interest picked up significan
 
 My bet is that doing the same on top of a highly concurrent architecture and message-passing would be much easier if less declarative. To that end I will try to port Frag to Erlang and see what comes out. I suspect that I will be proven right.
 
---- 7. Haskell-Cafe discussions related to my project ---
+h6. Haskell-Cafe discussions related to my project
 
---- 7.2 Design ---
+Design:
 
 * [Joel's time Leak](http://www.nabble.com/Joels-Time-Leak-t821098.html)
 * [Binary IO](http://www.nabble.com/binary-IO-t809119.html)
@@ -334,7 +339,7 @@ My bet is that doing the same on top of a highly concurrent architecture and mes
 * [Unbound threads and FFI](http://www.nabble.com/Unbound-threads-and-FFI-t741787.html)
 * [Battling laziness](http://www.nabble.com/Battling-laziness-t754457.html)
 
---- 7.1 Runtime issues ---
+Runtime issues:
 
 * [Spurious program crashes](http://www.nabble.com/Spurious-program-crashes-t565345.html)
 * [syscall, sigpause and EINTR on Mac OSX](http://www.nabble.com/syscall%2C-sigpause-and-EINTR-on-Mac-OSX-t719940.html)

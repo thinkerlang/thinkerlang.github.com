@@ -3,7 +3,7 @@ layout: post
 title: Parsing text and binary files with Erlang
 ---
 
-h1. {{ page.title }}
+h3. {{ page.title }}
 
 p(meta). 03 Feb 2008 - Tenerife
 

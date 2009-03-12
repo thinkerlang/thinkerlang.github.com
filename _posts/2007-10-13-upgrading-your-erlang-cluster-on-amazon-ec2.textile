@@ -3,7 +3,7 @@ layout: post
 title: Upgrading your Erlang cluster on Amazon EC2
 ---
 
-h1. {{ page.title }}
+h3. {{ page.title }}
 
 p(meta). 13 Oct 2007 - Tenerife
 

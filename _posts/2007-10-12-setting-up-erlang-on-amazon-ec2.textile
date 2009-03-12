@@ -3,7 +3,7 @@ layout: post
 title: Setting up Erlang on Amazon EC2
 ---
 
-h1. {{ page.title }}
+h3. {{ page.title }}
 
 p(meta). 12 Oct 2007 - Tenerife
 
